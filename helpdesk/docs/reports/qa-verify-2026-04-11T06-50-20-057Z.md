@@ -1,0 +1,79 @@
+# Registro de Ejecucion QA Automatizada
+
+## Datos generales
+
+- Fecha: 2026-04-11T06:50:20.057Z
+- Entorno: Local
+- Version o referencia del build: QA_APP_URL=http://127.0.0.1:3043
+- Ejecutado por: Script qa:verify
+- Documento base usado: plantilla-registro-ejecucion-qa.md
+
+## Resultado general
+
+- Estado final: OK
+- Resumen ejecutivo: 33 casos OK, 0 casos con fallo.
+- Recomendacion final: Aprobado para continuar
+
+## Registro por caso
+
+| ID caso | Rol | Resultado | Evidencia breve | Incidencia detectada | Observaciones |
+| --- | --- | --- | --- | --- | --- |
+| QA-AUTO-01 | Sistema | OK | `/api/health` respondio 200 con ok=true. |  | Validacion automatizada exitosa |
+| QA-AUTO-02 | Cliente | OK | Cliente autenticado y vista `/app/tickets` accesible. |  | Validacion automatizada exitosa |
+| QA-AUTO-03 | Agente | OK | Agente autenticado y vista `/app/agent/tickets` accesible. |  | Validacion automatizada exitosa |
+| QA-AUTO-04 | Supervisor | OK | Supervisor autenticado con dashboard y departamentos accesibles. |  | Validacion automatizada exitosa |
+| QA-AUTO-05 | Cliente | OK | Ticket TKT-100370 creado y visible en cliente/agente. |  | Validacion automatizada exitosa |
+| QA-AUTO-06 | Agente | OK | Comentario interno oculto para cliente y visible para agente. |  | Validacion automatizada exitosa |
+| QA-AUTO-06A | Cliente | OK | Cliente recibe 404 al intentar abrir ticket ajeno por URL directa. |  | Validacion automatizada exitosa |
+| QA-AUTO-06B | Cliente | OK | Cliente filtra por estado y busca por numero correctamente. |  | Validacion automatizada exitosa |
+| QA-AUTO-06C | Agente | OK | Agente filtra y busca tickets en su cola operativa. |  | Validacion automatizada exitosa |
+| QA-AUTO-06D | Supervisor | OK | Supervisor filtra por estado/categoria y busca por numero correctamente. |  | Validacion automatizada exitosa |
+| QA-AUTO-06E | Agente | OK | Agente recibe 404 al intentar abrir ticket fuera de su contexto por URL directa. |  | Validacion automatizada exitosa |
+| QA-AUTO-07 | Supervisor | OK | Departamento QA Dept 1775890196730 creado, editado y visible en supervisor. |  | Validacion automatizada exitosa |
+| QA-AUTO-10 | Supervisor | OK | Supervisor accede a `/app/supervisor/users` y ve solo usuarios internos. |  | Validacion automatizada exitosa |
+| QA-AUTO-11 | Supervisor | OK | Supervisor actualizo a diego.soporte@techsupport.local con department=Redes y active=false. |  | Validacion automatizada exitosa |
+| QA-AUTO-12 | Supervisor | OK | La UI bloquea guardar un agente sin departamento y preserva los datos persistidos. |  | Validacion automatizada exitosa |
+| QA-AUTO-13 | Agente | OK | El ticket TKT-100371 exige nota de resolucion y persiste resolution_note al resolver. |  | Validacion automatizada exitosa |
+| QA-AUTO-14 | Agente | OK | El ticket TKT-100372 bloquea cierre y reapertura manual desde la vista operativa interna. |  | Validacion automatizada exitosa |
+| QA-AUTO-15 | Cliente | OK | El cliente puede cerrar o solicitar reapertura desde resolved con validaciones de motivo y detalle libre cuando aplica. |  | Validacion automatizada exitosa |
+| QA-AUTO-16 | Cliente | OK | El cliente ve cierre en TKT-100375 y reapertura en TKT-100376. |  | Validacion automatizada exitosa |
+| QA-AUTO-16A | Supervisor | OK | El supervisor ve cierre en TKT-100377 y reapertura en TKT-100378. |  | Validacion automatizada exitosa |
+| QA-AUTO-16B | Agente | OK | El agente ve cierre en TKT-100379 y reapertura en TKT-100380. |  | Validacion automatizada exitosa |
+| QA-AUTO-17 | Cliente | OK | El ticket TKT-100381 persiste adjunto y lo muestra en detalle para cliente y agente. |  | Validacion automatizada exitosa |
+| QA-AUTO-18 | Cliente | OK | El comentario publico sobre TKT-100382 persiste adjunto y es visible para agente y cliente. |  | Validacion automatizada exitosa |
+| QA-AUTO-19 | Cliente | OK | La app bloquea adjuntos mayores a 5 MB con error controlado. |  | Validacion automatizada exitosa |
+| QA-AUTO-20 | Cliente | OK | El cliente recibe notificaciones internas por comentario publico y resolucion sobre TKT-100383. |  | Validacion automatizada exitosa |
+| QA-AUTO-21 | Agente | OK | El agente destino recibe notificacion interna al reasignar TKT-100384. |  | Validacion automatizada exitosa |
+| QA-AUTO-22 | Cliente | OK | El panel permite marcar una notificacion como revisada y deja de mostrarla como pendiente. |  | Validacion automatizada exitosa |
+| QA-AUTO-23 | Agente | OK | El ticket TKT-100385 se comporta como estado final cerrado en cliente, agente y supervisor. |  | Validacion automatizada exitosa |
+| QA-AUTO-24 | Sistema | OK | El ticket TKT-100386 se autocerro por vencimiento con motivo sin_respuesta_cliente y notificaciones emitidas. |  | Validacion automatizada exitosa |
+| QA-AUTO-25 | Supervisor | OK | Supervisor descarga exportacion CSV de tickets con encabezado y contenido real. |  | Validacion automatizada exitosa |
+| QA-AUTO-26 | Supervisor | OK | Supervisor descarga metricas JSON con counts, agedTickets y marca temporal de generacion. |  | Validacion automatizada exitosa |
+| QA-AUTO-08 | Agente | OK | Cliente confirmo cierre de TKT-100387 con closed_at persistido. |  | Validacion automatizada exitosa |
+| QA-AUTO-09 | Supervisor | OK | Cliente solicito reapertura de TKT-100388 con motivo persistido. |  | Validacion automatizada exitosa |
+
+## Incidencias abiertas
+
+| ID incidencia | Severidad | Caso asociado | Descripcion | Estado |
+| --- | --- | --- | --- | --- |
+| Sin incidencias | Baja | - | No se detectaron incidencias abiertas en la ejecucion automatizada. | Cerrada |
+
+## Checklist de cierre
+
+- x Se ejecutaron los casos criticos
+- x Se registraron evidencias minimas
+- x Las incidencias quedaron documentadas
+- x Se definio recomendacion final
+
+## Resumen tecnico
+
+- App URL: http://127.0.0.1:3043
+- PocketBase URL: http://127.0.0.1:8090
+- Casos OK: 33
+- Casos con fallo: 0
+
+## Firma o responsable
+
+- Nombre: Script qa:verify
+- Fecha de cierre: 2026-04-11T06:50:20.057Z
+

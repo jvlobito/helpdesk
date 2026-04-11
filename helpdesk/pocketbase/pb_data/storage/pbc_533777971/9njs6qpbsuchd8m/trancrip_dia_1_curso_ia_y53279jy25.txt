@@ -1,0 +1,693 @@
+Juan Manuel Morales Rodríguez
+0 minutos 4 segundos0:04
+Juan Manuel Morales Rodríguez 0 minutos 4 segundos
+Bueno, quería comentar, empezar diciendo que pues este no soy tan experto realmente como este Edgar lo es, no como es el instructor, pero sí hice una revisión de mis apuntes del taller de análisis de negocio con inteligencia artificial, que en el que participamos hace un mes justamente para tratar de recopilar lo que en su momento me ayudó.
+Juan Manuel Morales Rodríguez 0 minutos 24 segundos
+Para mí siento que me ayudó más para entender el uso de los skills y esperando no que también les pueda ser de utilidad. Entonces este pues espero poder transmitirles eso que en su momento me ayudó y pues practiquemos si les parece.
+Juan Manuel Morales Rodríguez 0 minutos 38 segundos
+Y bueno, quisiera empezar recordando un poquito lo que nos pasó ayer acerca de que ejecutamos unos prompts para el ejercicio que nos solicitó este Edgar y pues vimos no que el resultado de realmente de esos prompts fue diferente, generó resultados diferentes. Para Alonso le empezó a este a generar lo que era este ya propiamente.
+Juan Manuel Morales Rodríguez 1 minuto
+La propuesta del desarrollo, mientras que para mí fue más bien como que una de por como se lo plantee, el prompt me lo me lo planteó como que desde un punto de vista más teórico. Sí, entonces aquí con lo que yo me quedo es que dependiendo de la forma como le pidamos esos prompts.
+Juan Manuel Morales Rodríguez 1 minuto 20 segundos
+Pues el resultado puede ser diferente, ¿no? Ya lo que comentaba también ayer este Edgar es que justamente la inteligencia artificial pues presenta información de forma dinámica, aunque tú le des el mismo prompt 1 hora después, exactamente igual el resultado puede ser que sea diferente y de ahí.
+Juan Manuel Morales Rodríguez 1 minuto 39 segundos
+Pues justamente para tratar de obtener resultados más homogéneos que no idénticos, se crearon los skills, esas habilidades que son como capacidades que se pueden reutilizar para que algunos agentes de IA puedan hacer cierta labor. cierta.
+Juan Manuel Morales Rodríguez 1 minuto 58 segundos
+Este cierto skill, no ciertas características o habilidades. Sí, y este skill pues se carga como veíamos ayer de forma dinámica cada vez que lo invoquemos. Déjenme, Déjenme recuperar la pantalla donde nos presentaba este Edgar.
+Juan Manuel Morales Rodríguez 2 minutos 16 segundos
+La información de 2 skills.
+Juan Manuel Morales Rodríguez 2 minutos 20 segundos
+Me avisan cuando ya me vean, por favor.
+
+Armando Pascual Pérez
+2 minutos 26 segundos2:26
+Armando Pascual Pérez 2 minutos 26 segundos
+Ya te vemos, ya bueno, ya vemos tu pantalla.
+
+Edgar Felipe Fuentes Perea
+1 hora 2 minutos 2 segundos1:02:02
+Edgar Felipe Fuentes Perea 1 hora 2 minutos 2 segundos
+Ya lo vieron, eso quiere decir que usó el skill, algo que pudiera estar pasando y si quieres ahorita nos compartes tu pantalla es que en tu caso no se disparó el skill.
+Edgar Felipe Fuentes Perea 1 hora 2 minutos 13 segundos
+¿Nos compartes tu pantalla?
+
+Armando Pascual Pérez
+1 hora 2 minutos 15 segundos1:02:15
+Armando Pascual Pérez 1 hora 2 minutos 15 segundos
+No.
+
+Edgar Felipe Fuentes Perea
+1 hora 2 minutos 16 segundos1:02:16
+Edgar Felipe Fuentes Perea 1 hora 2 minutos 16 segundos
+Sí, Armando, please.
+
+Armando Pascual Pérez
+1 hora 2 minutos 17 segundos1:02:17
+Armando Pascual Pérez 1 hora 2 minutos 17 segundos
+sí, claro.
+Armando Pascual Pérez 1 hora 2 minutos 21 segundos
+Mira, sí lo utilizó.
+
+Edgar Felipe Fuentes Perea
+1 hora 2 minutos 22 segundos1:02:22
+Edgar Felipe Fuentes Perea 1 hora 2 minutos 22 segundos
+sí, se sí se disparó.
+
+Armando Pascual Pérez
+1 hora 2 minutos 26 segundos1:02:26
+Armando Pascual Pérez 1 hora 2 minutos 26 segundos
+Sí, yo supongo que es por el modelo, no, posiblemente por eso fue que varió.
+
+Edgar Felipe Fuentes Perea
+1 hora 2 minutos 32 segundos1:02:32
+Edgar Felipe Fuentes Perea 1 hora 2 minutos 32 segundos
+Pero tú usaste el 5 mini, okey, a ver, súbete un poquito más.
+
+Armando Pascual Pérez
+1 hora 2 minutos 38 segundos1:02:38
+Armando Pascual Pérez 1 hora 2 minutos 38 segundos
+Sí, ya soy todo.
+
+Edgar Felipe Fuentes Perea
+1 hora 2 minutos 40 segundos1:02:40
+Edgar Felipe Fuentes Perea 1 hora 2 minutos 40 segundos
+O K, mira, creo que sí. Si cierras la prueba con otro modelo, seguramente vas a obtener una respuesta totalmente diferente y déjame decirte porque hay que ir conociendo los modelos. El 5 mini no tiene la capacidad de razonar.
+
+Armando Pascual Pérez
+1 hora 2 minutos 55 segundos1:02:55
+Armando Pascual Pérez 1 hora 2 minutos 55 segundos
+Oh.
+
+Edgar Felipe Fuentes Perea
+1 hora 2 minutos 55 segundos1:02:55
+Edgar Felipe Fuentes Perea 1 hora 2 minutos 55 segundos
+Si te fijas, no tiene ninguna conversación de razonamiento.
+
+Armando Pascual Pérez
+1 hora 3 minutos 1 segundo1:03:01
+Armando Pascual Pérez 1 hora 3 minutos 1 segundo
+Bing.
+
+Edgar Felipe Fuentes Perea
+1 hora 3 minutos 2 segundos1:03:02
+Edgar Felipe Fuentes Perea 1 hora 3 minutos 2 segundos
+Lo único que hizo fue leer el skill.
+
+Armando Pascual Pérez
+1 hora 3 minutos 5 segundos1:03:05
+Armando Pascual Pérez 1 hora 3 minutos 5 segundos
+Mhm.
+
+Edgar Felipe Fuentes Perea
+1 hora 3 minutos 5 segundos1:03:05
+Edgar Felipe Fuentes Perea 1 hora 3 minutos 5 segundos
+Este No sé si te hizo una pregunta.
+
+Armando Pascual Pérez
+1 hora 3 minutos 8 segundos1:03:08
+Armando Pascual Pérez 1 hora 3 minutos 8 segundos
+Sí.
+
+Edgar Felipe Fuentes Perea
+1 hora 3 minutos 9 segundos1:03:09
+Edgar Felipe Fuentes Perea 1 hora 3 minutos 9 segundos
+Y después se lanzó a darte la respuesta.
+
+Armando Pascual Pérez
+1 hora 3 minutos 12 segundos1:03:12
+Armando Pascual Pérez 1 hora 3 minutos 12 segundos
+Correcto.
+
+Edgar Felipe Fuentes Perea
+1 hora 3 minutos 13 segundos1:03:13
+Edgar Felipe Fuentes Perea 1 hora 3 minutos 13 segundos
+Y si vuelves a presentar el tuyo, Sandra, please.
+Edgar Felipe Fuentes Perea 1 hora 3 minutos 18 segundos
+Podemos ver que en el de Sandra.
+Edgar Felipe Fuentes Perea 1 hora 3 minutos 21 segundos
+Si hubo un proceso de pensamiento, miren, thinking.
+
+Armando Pascual Pérez
+1 hora 3 minutos 26 segundos1:03:26
+Armando Pascual Pérez 1 hora 3 minutos 26 segundos
+Oh, cierto, ahí está el thinking.
+
+Edgar Felipe Fuentes Perea
+1 hora 3 minutos 30 segundos1:03:30
+Edgar Felipe Fuentes Perea 1 hora 3 minutos 30 segundos
+Entonces este modelo que usó Sandra, el B Pickle, obviamente tiene la capacidad de ese de pensamiento, cosa que por ejemplo el mini no tiene porque el mini es más directo. Déjenme decirlo así como les decía, ese modelo es como más ejecutor.
+Edgar Felipe Fuentes Perea 1 hora 3 minutos 44 segundos
+Él no piensa, él le tienes que decir exactamente los pasos, cómo para que te los haga tal cual, porque su creatividad tampoco es muy alta.
+
+Armando Pascual Pérez
+1 hora 3 minutos 44 segundos1:03:44
+Armando Pascual Pérez 1 hora 3 minutos 44 segundos
+K.
+Armando Pascual Pérez 1 hora 3 minutos 53 segundos
+Mhm.
+
+Edgar Felipe Fuentes Perea
+1 hora 3 minutos 54 segundos1:03:54
+Edgar Felipe Fuentes Perea 1 hora 3 minutos 54 segundos
+O sea, él pica piedra, él es chambeador, él no lo pongas a pensar.
+
+Armando Pascual Pérez
+1 hora 3 minutos 59 segundos1:03:59
+Armando Pascual Pérez 1 hora 3 minutos 59 segundos
+Okay, okay.
+
+Edgar Felipe Fuentes Perea
+1 hora 4 minutos 3 segundos1:04:03
+Edgar Felipe Fuentes Perea 1 hora 4 minutos 3 segundos
+Y estos modelos son más para pensar, a la mejor es al revés, a ellos no los pongas a chambear mucho, ponlos a pensar y que otro modelo, que es el que sea más chambeador, más ejecutor, este lo pongas a ejecutar ese plan, no, por ejemplo.
+
+Armando Pascual Pérez
+1 hora 4 minutos 3 segundos1:04:03
+Armando Pascual Pérez 1 hora 4 minutos 3 segundos
+Yes.
+
+Jose Victor Galicia Rivera
+1 hora 4 minutos 23 segundos1:04:23
+Jose Victor Galicia Rivera 1 hora 4 minutos 23 segundos
+Pero hay una pregunta que ahorita me surge, por ejemplo, en situaciones donde queremos hacer análisis de código, entonces también el mini, el mini no nos sirve mucho por la cosa de la temperatura.
+
+Edgar Felipe Fuentes Perea
+1 hora 4 minutos 34 segundos1:04:34
+Edgar Felipe Fuentes Perea 1 hora 4 minutos 34 segundos
+No.
+Edgar Felipe Fuentes Perea 1 hora 4 minutos 36 segundos
+No tenemos que buscar modelos de los que tienen ese poder de razonamiento.
+Edgar Felipe Fuentes Perea 1 hora 4 minutos 43 segundos
+O sea, por eso les decía, hay que conocer nuestros modelos, qué modelos tenemos disponibles y cuáles son las ventajas y desventajas o las fortalezas y debilidades de cada uno de ellos para poner al modelo correcto a hacer la tarea correcta.
+
+Jose Victor Galicia Rivera
+1 hora 4 minutos 44 segundos1:04:44
+Jose Victor Galicia Rivera 1 hora 4 minutos 44 segundos
+Yeah.
+
+Edgar Felipe Fuentes Perea
+1 hora 4 minutos 58 segundos1:04:58
+Edgar Felipe Fuentes Perea 1 hora 4 minutos 58 segundos
+Porque qué bueno que salió esto, perdón, sí.
+
+Jose Victor Galicia Rivera
+1 hora 4 minutos 58 segundos1:04:58
+Jose Victor Galicia Rivera 1 hora 4 minutos 58 segundos
+Entonces, cada modelo tiene.
+Jose Victor Galicia Rivera 1 hora 5 minutos 1 segundo
+Sí, verdad, cada modelo tiene como su, digamos, su introducción o ajá para saber.
+
+Edgar Felipe Fuentes Perea
+1 hora 5 minutos 5 segundos1:05:05
+Edgar Felipe Fuentes Perea 1 hora 5 minutos 5 segundos
+Son dicho.
+
+Jose Victor Galicia Rivera
+1 hora 5 minutos 9 segundos1:05:09
+Jose Victor Galicia Rivera 1 hora 5 minutos 9 segundos
+Exactamente.
+
+Edgar Felipe Fuentes Perea
+1 hora 5 minutos 9 segundos1:05:09
+Edgar Felipe Fuentes Perea 1 hora 5 minutos 9 segundos
+Sí, o sea, todos parece ser que hacen de todo, pero unos son están más especializados en ciertos nichos específicos. hay que.
+Edgar Felipe Fuentes Perea 1 hora 5 minutos 20 segundos
+Pues investigar, hay que leer sobre sus modelos. O sea, tampoco podemos pensar que voy a agarrar el modelo más caro, el más este potente, y es el que me va a servir para hacer todo hasta para programar, para hacer traducciones, para hacer sustitución de líneas de código. Y la verdad es que eso, aunque pudiera hacerlo, los modelos que son.
+
+Edgar Felipe Fuentes Perea
+3 horas 4 minutos 40 segundos3:04:40
+Edgar Felipe Fuentes Perea 3 horas 4 minutos 40 segundos
+Ajá, si lo queremos global o lo queremos local, yo digo que este ahorita ponlo local, la opción 2.
+
+Armando Pascual Pérez
+3 horas 4 minutos 40 segundos3:04:40
+Armando Pascual Pérez 3 horas 4 minutos 40 segundos
+Con.
+
+Juan Manuel Morales Rodríguez
+3 horas 4 minutos 41 segundos3:04:41
+Juan Manuel Morales Rodríguez 3 horas 4 minutos 41 segundos
+Okay.
+Juan Manuel Morales Rodríguez 3 horas 4 minutos 46 segundos
+Okay.
+
+Edgar Felipe Fuentes Perea
+3 horas 4 minutos 50 segundos3:04:50
+Edgar Felipe Fuentes Perea 3 horas 4 minutos 50 segundos
+Y ya está ahora, si te vas, no, pero espérame, es que estabas en el raíz.
+
+Juan Manuel Morales Rodríguez
+3 horas 4 minutos 58 segundos3:04:58
+Juan Manuel Morales Rodríguez 3 horas 4 minutos 58 segundos
+Okay.
+
+Edgar Felipe Fuentes Perea
+3 horas 4 minutos 59 segundos3:04:59
+Edgar Felipe Fuentes Perea 3 horas 4 minutos 59 segundos
+Pues dale LL.
+Edgar Felipe Fuentes Perea 3 horas 5 minutos 3 segundos
+Más para ver, es que ahí debió haber creado.
+Edgar Felipe Fuentes Perea 3 horas 5 minutos 12 segundos
+No se ve que por ahí haya creado un archivo punto.
+Edgar Felipe Fuentes Perea 3 horas 5 minutos 17 segundos
+¿Punto este open code, verdad?
+
+Juan Manuel Morales Rodríguez
+3 horas 5 minutos 20 segundos3:05:20
+Juan Manuel Morales Rodríguez 3 horas 5 minutos 20 segundos
+No.
+Juan Manuel Morales Rodríguez 3 horas 5 minutos 23 segundos
+Es que me vaya el explorador de archivos.
+Juan Manuel Morales Rodríguez 3 horas 5 minutos 30 segundos
+Okay.
+Juan Manuel Morales Rodríguez 3 horas 5 minutos 32 segundos
+Again.
+Juan Manuel Morales Rodríguez 3 horas 5 minutos 43 segundos
+Revista.
+
+Edgar Felipe Fuentes Perea
+3 horas 5 minutos 44 segundos3:05:44
+Edgar Felipe Fuentes Perea 3 horas 5 minutos 44 segundos
+A ver, LL.
+Edgar Felipe Fuentes Perea 3 horas 5 minutos 49 segundos
+¿Ok, ahí tú no tienes ninguna carpeta de open code, verdad?
+
+Juan Manuel Morales Rodríguez
+3 horas 5 minutos 53 segundos3:05:53
+Juan Manuel Morales Rodríguez 3 horas 5 minutos 53 segundos
+And no crook, no.
+
+Edgar Felipe Fuentes Perea
+3 horas 5 minutos 54 segundos3:05:54
+Edgar Felipe Fuentes Perea 3 horas 5 minutos 54 segundos
+No, perdón, dale LS espacio menos L A.
+Edgar Felipe Fuentes Perea 3 horas 6 minutos 1 segundo
+O K, entonces sí está el cloud, este a ver, déjame ver con el Visual Studio que tienes ahí en el.
+Edgar Felipe Fuentes Perea 3 horas 6 minutos 9 segundos
+En el close, de hecho, no debió haber sido ahí.
+
+Juan Manuel Morales Rodríguez
+3 horas 6 minutos 10 segundos3:06:10
+Juan Manuel Morales Rodríguez 3 horas 6 minutos 10 segundos
+Oh.
+Juan Manuel Morales Rodríguez 3 horas 6 minutos 14 segundos
+But para that visual studio.
+
+Edgar Felipe Fuentes Perea
+3 horas 6 minutos 15 segundos3:06:15
+Edgar Felipe Fuentes Perea 3 horas 6 minutos 15 segundos
+Sí.
+
+Juan Manuel Morales Rodríguez
+3 horas 6 minutos 17 segundos3:06:17
+Juan Manuel Morales Rodríguez 3 horas 6 minutos 17 segundos
+Just.
+
+Edgar Felipe Fuentes Perea
+3 horas 6 minutos 18 segundos3:06:18
+Edgar Felipe Fuentes Perea 3 horas 6 minutos 18 segundos
+Es que seguramente lo instaló ahí y ahí no debería de haberlo instalado, pero ahorita lo arreglamos. ¿Es esa misma?
+
+Juan Manuel Morales Rodríguez
+3 horas 6 minutos 22 segundos3:06:22
+Juan Manuel Morales Rodríguez 3 horas 6 minutos 22 segundos
+Okay.
+
+Edgar Felipe Fuentes Perea
+3 horas 6 minutos 24 segundos3:06:24
+Edgar Felipe Fuentes Perea 3 horas 6 minutos 24 segundos
+No, sí.
+
+Juan Manuel Morales Rodríguez
+3 horas 6 minutos 25 segundos3:06:25
+Juan Manuel Morales Rodríguez 3 horas 6 minutos 25 segundos
+And.
+Juan Manuel Morales Rodríguez 3 horas 6 minutos 27 segundos
+No creo que no, a ver la brú la.
+
+Edgar Felipe Fuentes Perea
+3 horas 6 minutos 29 segundos3:06:29
+Edgar Felipe Fuentes Perea 3 horas 6 minutos 29 segundos
+Sí.
+
+Juan Manuel Morales Rodríguez
+3 horas 6 minutos 30 segundos3:06:30
+Juan Manuel Morales Rodríguez 3 horas 6 minutos 30 segundos
+El folder.
+Juan Manuel Morales Rodríguez 3 horas 6 minutos 32 segundos
+Y.
+Juan Manuel Morales Rodríguez 3 horas 6 minutos 35 segundos
+Ejercicio, bueno, pensaba ponerlo aquí para el ejercicio de Get, puede ser.
+
+Edgar Felipe Fuentes Perea
+3 horas 6 minutos 37 segundos3:06:37
+Edgar Felipe Fuentes Perea 3 horas 6 minutos 37 segundos
+Okey, ábrese, ahí lo creaste, sí, ahí ábrese.
+
+Juan Manuel Morales Rodríguez
+3 horas 6 minutos 41 segundos3:06:41
+Juan Manuel Morales Rodríguez 3 horas 6 minutos 41 segundos
+Lo que lo quería, pero me lo te digo que lo hice mal.
+
+Edgar Felipe Fuentes Perea
+3 horas 6 minutos 46 segundos3:06:46
+Edgar Felipe Fuentes Perea 3 horas 6 minutos 46 segundos
+Ok, dales el expolder.
+
+Juan Manuel Morales Rodríguez
+3 horas 6 minutos 46 segundos3:06:46
+Juan Manuel Morales Rodríguez 3 horas 6 minutos 46 segundos
+Pero flor.
+
+Armando Pascual Pérez
+3 horas 6 minutos 46 segundos3:06:46
+Armando Pascual Pérez 3 horas 6 minutos 46 segundos
+A mí me lo creó dentro de la de punto open code en la carpeta que tenías arriba.
+
+Juan Manuel Morales Rodríguez
+3 horas 6 minutos 51 segundos3:06:51
+Juan Manuel Morales Rodríguez 3 horas 6 minutos 51 segundos
+Sí, es verdad, yo creo que sí.
+
+Armando Pascual Pérez
+3 horas 6 minutos 53 segundos3:06:53
+Armando Pascual Pérez 3 horas 6 minutos 53 segundos
+Sí.
+
+Edgar Felipe Fuentes Perea
+3 horas 6 minutos 55 segundos3:06:55
+Edgar Felipe Fuentes Perea 3 horas 6 minutos 55 segundos
+Pero vamos a hacerlo ahorita igual ahorita lo borras lo otro, mira abre ese.
+
+Juan Manuel Morales Rodríguez
+3 horas 6 minutos 55 segundos3:06:55
+Juan Manuel Morales Rodríguez 3 horas 6 minutos 55 segundos
+Abajo.
+Juan Manuel Morales Rodríguez 3 horas 6 minutos 58 segundos
+Okay, okay.
+
+Edgar Felipe Fuentes Perea
+3 horas 7 minutos 1 segundo3:07:01
+Edgar Felipe Fuentes Perea 3 horas 7 minutos 1 segundo
+Y ahí no hay nada.
+
+Juan Manuel Morales Rodríguez
+3 horas 7 minutos 1 segundo3:07:01
+Juan Manuel Morales Rodríguez 3 horas 7 minutos 1 segundo
+Estoy.
+Juan Manuel Morales Rodríguez 3 horas 7 minutos 4 segundos
+Pues sí.
+
+Edgar Felipe Fuentes Perea
+3 horas 7 minutos 4 segundos3:07:04
+Edgar Felipe Fuentes Perea 3 horas 7 minutos 4 segundos
+Ahora, este en la terminal, muévete a esa misma carpeta.
+
+Juan Manuel Morales Rodríguez
+3 horas 7 minutos 11 segundos3:07:11
+Juan Manuel Morales Rodríguez 3 horas 7 minutos 11 segundos
+¿Y acá en la segunda, verdad?
+
+Edgar Felipe Fuentes Perea
+3 horas 7 minutos 13 segundos3:07:13
+Edgar Felipe Fuentes Perea 3 horas 7 minutos 13 segundos
+Sí.
+
+Juan Manuel Morales Rodríguez
+3 horas 7 minutos 16 segundos3:07:16
+Juan Manuel Morales Rodríguez 3 horas 7 minutos 16 segundos
+¿Qué?
+Juan Manuel Morales Rodríguez 3 horas 7 minutos 24 segundos
+Seven.
+Juan Manuel Morales Rodríguez 3 horas 7 minutos 26 segundos
+Issue young dead?
+
+Edgar Felipe Fuentes Perea
+3 horas 7 minutos 29 segundos3:07:29
+Edgar Felipe Fuentes Perea 3 horas 7 minutos 29 segundos
+Dale tab, ándale.
+
+Juan Manuel Morales Rodríguez
+3 horas 7 minutos 31 segundos3:07:31
+Juan Manuel Morales Rodríguez 3 horas 7 minutos 31 segundos
+Ahí está, listo.
+
+Edgar Felipe Fuentes Perea
+3 horas 7 minutos 33 segundos3:07:33
+Edgar Felipe Fuentes Perea 3 horas 7 minutos 33 segundos
+O K, entonces es verdad, entonces ahí no hay nada, está vacío. Entonces ponle con las flechitas hacia arriba hasta que encuentres el NPX.
+S
+Sandra Nicte Pineda Llano
+3 horas 55 minutos 32 segundos3:55:32
+Sandra Nicte Pineda Llano 3 horas 55 minutos 32 segundos
+Gracias igual.
+
+Alonso Mojica Topete
+3 horas 55 minutos 32 segundos3:55:32
+Alonso Mojica Topete 3 horas 55 minutos 32 segundos
+Gracias igualmente.
+
+Juan Manuel Morales Rodríguez
+3 horas 55 minutos 33 segundos3:55:33
+Juan Manuel Morales Rodríguez 3 horas 55 minutos 33 segundos
+Gracias.
+
+Armando Pascual Pérez
+3 horas 55 minutos 34 segundos3:55:34
+Armando Pascual Pérez 3 horas 55 minutos 34 segundos
+Igualmente, gracias.
+S
+Sandra Nicte Pineda Llano
+3 horas 55 minutos 39 segundos3:55:39
+Sandra Nicte Pineda Llano 3 horas 55 minutos 39 segundos
+O K, seguimos, este los usuarios pueden este tener la opción de skips.
+
+Armando Pascual Pérez
+3 horas 55 minutos 42 segundos3:55:42
+Armando Pascual Pérez 3 horas 55 minutos 42 segundos
+Push.
+S
+Sandra Nicte Pineda Llano
+3 horas 55 minutos 48 segundos3:55:48
+Sandra Nicte Pineda Llano 3 horas 55 minutos 48 segundos
+Yo digo que sí, porque hay muchos que ya saben.
+
+Armando Pascual Pérez
+3 horas 55 minutos 50 segundos3:55:50
+Armando Pascual Pérez 3 horas 55 minutos 50 segundos
+See you.
+S
+Sandra Nicte Pineda Llano
+3 horas 55 minutos 54 segundos3:55:54
+Sandra Nicte Pineda Llano 3 horas 55 minutos 54 segundos
+El onboarding debería tener este.
+Sandra Nicte Pineda Llano 3 horas 55 minutos 57 segundos
+No.
+Sandra Nicte Pineda Llano 3 horas 55 minutos 59 segundos
+Smart default, o sea.
+Sandra Nicte Pineda Llano 3 horas 56 minutos 1 segundo
+Que ya tenga de fans, no me imagino.
+Sandra Nicte Pineda Llano 3 horas 56 minutos 7 segundos
+Yo creo que sí, ¿no?
+
+Alonso Mojica Topete
+3 horas 56 minutos 13 segundos3:56:13
+Alonso Mojica Topete 3 horas 56 minutos 13 segundos
+Sí.
+S
+Sandra Nicte Pineda Llano
+3 horas 56 minutos 14 segundos3:56:14
+Sandra Nicte Pineda Llano 3 horas 56 minutos 14 segundos
+De la que sí.
+
+Alonso Mojica Topete
+3 horas 56 minutos 31 segundos3:56:31
+Alonso Mojica Topete 3 horas 56 minutos 31 segundos
+Este José, no sé, este ibas a invitar al Andrés, no para ver quién para que viera quién está o ya.
+
+Jose Victor Galicia Rivera
+3 horas 56 minutos 40 segundos3:56:40
+Jose Victor Galicia Rivera 3 horas 56 minutos 40 segundos
+sí, cierto, se me olvidó, déjale, escribo.
+
+Armando Pascual Pérez
+3 horas 56 minutos 43 segundos3:56:43
+Armando Pascual Pérez 3 horas 56 minutos 43 segundos
+You come?
+
+Jose Victor Galicia Rivera
+3 horas 56 minutos 45 segundos3:56:45
+Jose Victor Galicia Rivera 3 horas 56 minutos 45 segundos
+Permíteme.
+
+Armando Pascual Pérez
+3 horas 56 minutos 48 segundos3:56:48
+Armando Pascual Pérez 3 horas 56 minutos 48 segundos
+Ya creo también una carpeta ahí ya vieron.
+S
+Sandra Nicte Pineda Llano
+3 horas 56 minutos 59 segundos3:56:59
+Sandra Nicte Pineda Llano 3 horas 56 minutos 59 segundos
+Sí, para ella bien.
+
+Armando Pascual Pérez
+3 horas 57 minutos 1 segundo3:57:01
+Armando Pascual Pérez 3 horas 57 minutos 1 segundo
+Vi que estaba con el MK Dear Make Directory.
+Armando Pascual Pérez 3 horas 57 minutos 9 segundos
+Yo creo más arriba.
+S
+Sandra Nicte Pineda Llano
+3 horas 57 minutos 13 segundos3:57:13
+Sandra Nicte Pineda Llano 3 horas 57 minutos 13 segundos
+Mhm.
+
+Armando Pascual Pérez
+3 horas 57 minutos 16 segundos3:57:16
+Armando Pascual Pérez 3 horas 57 minutos 16 segundos
+Un poquito más, un poquito más.
+Armando Pascual Pérez 3 horas 57 minutos 20 segundos
+Y ahí.
+S
+Sandra Nicte Pineda Llano
+3 horas 57 minutos 21 segundos3:57:21
+Sandra Nicte Pineda Llano 3 horas 57 minutos 21 segundos
+sí.
+Sandra Nicte Pineda Llano 3 horas 57 minutos 25 segundos
+Aquí en fases y foundation, ya lo está organizando por fases.
+
+Armando Pascual Pérez
+3 horas 57 minutos 27 segundos3:57:27
+Armando Pascual Pérez 3 horas 57 minutos 27 segundos
+Is that?
+Armando Pascual Pérez 3 horas 57 minutos 30 segundos
+¿O K, que es que es la será necesario verla en el visual.
+Armando Pascual Pérez 3 horas 57 minutos 38 segundos
+Ahí está, mira.
+Armando Pascual Pérez 3 horas 57 minutos 42 segundos
+Jesus.
+S
+Sandra Nicte Pineda Llano
+3 horas 57 minutos 43 segundos3:57:43
+Sandra Nicte Pineda Llano 3 horas 57 minutos 43 segundos
+Este, pues están.
+Sandra Nicte Pineda Llano 3 horas 57 minutos 46 segundos
+Supongo que poniendo este las opciones que nosotros, ajá, estamos este.
+
+Armando Pascual Pérez
+3 horas 57 minutos 51 segundos3:57:51
+Armando Pascual Pérez 3 horas 57 minutos 51 segundos
+Sí.
+S
+Sandra Nicte Pineda Llano
+3 horas 57 minutos 53 segundos3:57:53
+Sandra Nicte Pineda Llano 3 horas 57 minutos 53 segundos
+Considerando.
+
+Armando Pascual Pérez
+3 horas 57 minutos 55 segundos3:57:55
+Armando Pascual Pérez 3 horas 57 minutos 55 segundos
+Sí, listo.
+Armando Pascual Pérez 3 horas 57 minutos 58 segundos
+Perdón.
+S
+Sandra Nicte Pineda Llano
+3 horas 58 minutos 2 segundos3:58:02
+Sandra Nicte Pineda Llano 3 horas 58 minutos 2 segundos
+Ay, mira, ya no nos faltaba mucho.
+
+Armando Pascual Pérez
+3 horas 58 minutos 5 segundos3:58:05
+Armando Pascual Pérez 3 horas 58 minutos 5 segundos
+No.
+Armando Pascual Pérez 3 horas 58 minutos 9 segundos
+Pues ya terminó como la fase uno.
+
+Juan Manuel Morales Rodríguez
+3 horas 58 minutos 13 segundos3:58:13
+Juan Manuel Morales Rodríguez 3 horas 58 minutos 13 segundos
+Pero creo que decía que no pasáramos a la fase 2, no mejor creo que lo esperáramos.
+
+Armando Pascual Pérez
+3 horas 58 minutos 16 segundos3:58:16
+Armando Pascual Pérez 3 horas 58 minutos 16 segundos
+Sí, dijo que no pasamos.
+S
+Sandra Nicte Pineda Llano
+3 horas 58 minutos 17 segundos3:58:17
+Sandra Nicte Pineda Llano 3 horas 58 minutos 17 segundos
+Hello.
+
+Alonso Mojica Topete
+3 horas 58 minutos 21 segundos3:58:21
+Alonso Mojica Topete 3 horas 58 minutos 21 segundos
+okey, entonces nos quedamos aquí.
+S
+Sandra Nicte Pineda Llano
+3 horas 58 minutos 25 segundos3:58:25
+Sandra Nicte Pineda Llano 3 horas 58 minutos 25 segundos
+No sé si alguien más ya lo hizo, así como por bueno, es que yo tengo que.
+
+Alonso Mojica Topete
+3 horas 58 minutos 29 segundos3:58:29
+Alonso Mojica Topete 3 horas 58 minutos 29 segundos
+No.
+
+Armando Pascual Pérez
+3 horas 58 minutos 30 segundos3:58:30
+Armando Pascual Pérez 3 horas 58 minutos 30 segundos
+Yo la verdad es que me perdí un poco al principio, cuando empezaron con los prompts, porque pues estaba tratando de replicarlo, pero no, y en voces me perdí desde el justo en este primer.
+
+Alonso Mojica Topete
+3 horas 58 minutos 41 segundos3:58:41
+Alonso Mojica Topete 3 horas 58 minutos 41 segundos
+Hey.
+Alonso Mojica Topete 3 horas 58 minutos 42 segundos
+Santi.
+Alonso Mojica Topete 3 horas 58 minutos 44 segundos
+¿Ajá, yo me quedé en el paso de Yolo o interactivo, qué le pusiste?
+S
+Sandra Nicte Pineda Llano
+3 horas 58 minutos 52 segundos3:58:52
+Sandra Nicte Pineda Llano 3 horas 58 minutos 52 segundos
+Ay, aquí ya no está.
+Sandra Nicte Pineda Llano 3 horas 58 minutos 59 segundos
+Que le puse, creo que yolo, sí.
+Sandra Nicte Pineda Llano 3 horas 59 minutos 3 segundos
+Sí, porque dijo que no, para que no tardara tanto.
+
+Alonso Mojica Topete
+3 horas 59 minutos 5 segundos3:59:05
+Alonso Mojica Topete 3 horas 59 minutos 5 segundos
+Y vos.
+
+Juan Manuel Morales Rodríguez
+3 horas 59 minutos 8 segundos3:59:08
+Juan Manuel Morales Rodríguez 3 horas 59 minutos 8 segundos
+Fíjese que a mí me pasó algo diferente. este.
+Juan Manuel Morales Rodríguez 3 horas 59 minutos 14 segundos
+Ayer ejecuté, ahora sí que con lo que tratando de seguir el ejercicio que estaban haciendo.
+Juan Manuel Morales Rodríguez 3 horas 59 minutos 19 segundos
+Pero este no me presentó algo y ahorita que estaba siguiendo los pasos de Sandy.
+Juan Manuel Morales Rodríguez 3 horas 59 minutos 27 segundos
+¿Este me dice, oye, es que tú ya habías creado algo?
+Juan Manuel Morales Rodríguez 3 horas 59 minutos 31 segundos
+¿Y dije, cuál? Así que yo tampoco soy experto, no en este la plataforma. Yo vengo más bien de sistema Legacy, entonces estamos que si de repente me confundo un poquito, o sea, no estoy tan enterado como ustedes, seguramente de todas esas opciones, ¿no?
+Juan Manuel Morales Rodríguez 3 horas 59 minutos 48 segundos
+Pero si no sé si a ustedes les habrá presentado algo similar.
+Juan Manuel Morales Rodríguez 3 horas 59 minutos 52 segundos
+Donde dice, me deja presentar este Sandy.
+S
+Sandra Nicte Pineda Llano
+3 horas 59 minutos 56 segundos3:59:56
+Sandra Nicte Pineda Llano 3 horas 59 minutos 56 segundos
+Compartir.
+
+Juan Manuel Morales Rodríguez
+3 horas 59 minutos 57 segundos3:59:57
+Juan Manuel Morales Rodríguez 3 horas 59 minutos 57 segundos
+Así, por favor.
+Juan Manuel Morales Rodríguez 4 horas
+Nomas.
+Juan Manuel Morales Rodríguez 4 horas 2 segundos
+A ver qué tan perdido estoy.
