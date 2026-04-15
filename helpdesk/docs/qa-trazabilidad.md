@@ -42,6 +42,38 @@ Relacionar los casos `QA-XX` de la matriz funcional con los checks `QA-AUTO-XX` 
 | QA-32 | QA-AUTO-24 | Completa | Autocierre batch de tickets `resolved` vencidos con motivo `sin_respuesta_cliente` |
 | QA-33 | QA-AUTO-25 | Completa | Supervisor descarga exportacion CSV de tickets con contenido real |
 | QA-34 | QA-AUTO-26 | Completa | Supervisor descarga metricas JSON del dashboard |
+| QA-35 | QA-AUTO-27 | Completa | Supervisor exporta CSV respetando filtros activos en la vista global de tickets |
+| QA-36 | QA-AUTO-28 | Completa | Supervisor exporta CSV respetando `departmentId`, `assignedToId` y rango de fechas en la vista global de tickets |
+| QA-37 | QA-AUTO-29 | Completa | Dashboard supervisor muestra KPI ampliado con tasa de reapertura, tiempos separados y desglose de backlog envejecido |
+| QA-38 | QA-AUTO-30 | Completa | Exportacion JSON de metricas expone KPI ampliado y desglose de backlog envejecido |
+| QA-39 | QA-AUTO-31 | Completa | Dashboard supervisor muestra resumen ejecutivo y acceso a descarga gerencial |
+| QA-40 | QA-AUTO-32 | Completa | Exportacion Markdown gerencial resume KPIs, highlights y focos operativos |
+| QA-41 | QA-AUTO-33 | Completa | Autocierre registra `job_run` exitoso y libera lock |
+| QA-42 | QA-AUTO-34 | Completa | Lock activo deja corrida de autocierre en `skipped` |
+| QA-43 | QA-AUTO-35 | Completa | `DRY_RUN` de autocierre no modifica tickets candidatos |
+| QA-44 | QA-AUTO-36 | Completa | Falla controlada deja corrida de autocierre en `partial_failure` |
+| QA-45 | QA-AUTO-37 | Completa | Health endpoint refleja estado real de PocketBase y tiempo de respuesta |
+| QA-46 | QA-AUTO-38 | Completa | Exportaciones supervisor siguen respondiendo bien tras agregar logging operativo |
+| QA-50 | QA-AUTO-41 | Completa | Cliente no accede a paginas supervisor por URL directa |
+| QA-51 | QA-AUTO-42 | Completa | Agente no accede a paginas supervisor por URL directa |
+| QA-52 | QA-AUTO-43 | Completa | Exports supervisor responden `403` a roles no autorizados |
+| QA-53 | QA-AUTO-44 | Completa | `markNotificationReadAction` no modifica notificaciones ajenas |
+| QA-54 | QA-AUTO-45 | Completa | `pb:backup` genera respaldo local valido de `pb_data` |
+| QA-55 | QA-AUTO-46 | Completa | `pb:restore:check` valida un respaldo sin mutar datos activos |
+| QA-56 | QA-AUTO-47 | Completa | `pb:restore` no aplica restore sin confirmacion explicita |
+
+## Resumen por fase
+
+### Fase 1
+
+- cobertura automatica completa fuerte: `QA-01`, `QA-02`, `QA-03`, `QA-04`, `QA-06`, `QA-11`, `QA-12`, `QA-14`
+- cobertura automatica parcial relevante: `QA-07`, `QA-08`, `QA-09`, `QA-10`, `QA-15`
+- pendientes dedicados de automatizar: `QA-05`, `QA-13`, `QA-16`
+
+### Fase 4
+
+- cobertura automatica completa fuerte: `QA-19` a `QA-32`, `QA-33`, `QA-34`
+- foco cubierto: adjuntos, notificaciones, administracion de usuarios, cierre/reapertura, estado final `closed`, autocierre y exportacion ligera
 
 ## Nota para Fase 4.6
 

@@ -66,17 +66,26 @@ La fase expandio el MVP con capacidades operativas de mayor valor real para la g
 - `npm run qa:verify` OK
 - `docs/reports/qa-verify-latest.md`
 - estado final actual: `OK`
-- cobertura actual: 33 casos OK, 0 fallos
+- cobertura actual del ultimo reporte disponible: 45 casos OK, 0 fallos
 
 Cobertura automatizada relevante de la fase:
-- adjuntos validos y bloqueo por tamano
-- notificaciones operativas y marcado como revisada
-- administracion operativa de usuarios internos
-- cierre/reapertura por cliente con reglas y visibilidad
-- ticket `closed` como estado final
-- autocierre batch por vencimiento
-- exportacion CSV de tickets
-- exportacion JSON de metricas
+- `QA-AUTO-17`, `QA-AUTO-18`, `QA-AUTO-19`: adjuntos validos y bloqueo por tamano
+- `QA-AUTO-20`, `QA-AUTO-21`, `QA-AUTO-22`: notificaciones operativas y marcado como revisada
+- `QA-AUTO-10`, `QA-AUTO-11`, `QA-AUTO-12`: administracion operativa de usuarios internos
+- `QA-AUTO-13`, `QA-AUTO-14`, `QA-AUTO-15`, `QA-AUTO-16`, `QA-AUTO-16A`, `QA-AUTO-16B`: cierre/reapertura por cliente con reglas y visibilidad
+- `QA-AUTO-23`: ticket `closed` como estado final
+- `QA-AUTO-24`: autocierre batch por vencimiento
+- `QA-AUTO-25`: exportacion CSV de tickets
+- `QA-AUTO-26`: exportacion JSON de metricas
+
+### Casos QA manuales clave del cierre de fase
+
+- `QA-19`, `QA-20`: adjuntos
+- `QA-21`, `QA-22`, `QA-23`: notificaciones
+- `QA-24`, `QA-25`, `QA-26`: administracion operativa de usuarios
+- `QA-27`, `QA-28`, `QA-29`, `QA-30`: cierre y reapertura trazables
+- `QA-31`, `QA-32`: estado final `closed` y autocierre batch
+- `QA-33`, `QA-34`: exportacion ligera
 
 ### Validacion funcional dirigida
 

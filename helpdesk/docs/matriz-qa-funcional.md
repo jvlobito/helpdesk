@@ -18,6 +18,18 @@ Tener una matriz simple y trazable para validar la funcionalidad operativa actua
 - Agente IT 2: `diego.soporte@techsupport.local / ChangeMe123!`
 - Supervisor: `supervisor@techsupport.local / ChangeMe123!`
 
+## Cobertura sugerida por fase
+
+### Fase 1
+
+- `QA-01` a `QA-15`
+- foco: login por rol, creacion base de ticket, comentarios, flujo base de agente, departamentos y acceso inicial a dashboard
+
+### Fase 4
+
+- `QA-19` a `QA-34`
+- foco: adjuntos, notificaciones, administracion operativa de usuarios, cierre/reapertura trazables, exportacion ligera y autocierre
+
 ## Matriz
 
 | ID | Modulo | Rol | Datos de prueba | Pasos resumidos | Resultado esperado | Prioridad |
@@ -56,6 +68,25 @@ Tener una matriz simple y trazable para validar la funcionalidad operativa actua
 | QA-32 | Autocierre por vencimiento de ticket resuelto | Sistema, luego Cliente y Agente | Ticket en `resolved` con `resolved_at` vencido | Ejecutar `tickets:auto-close` y revisar ticket/notificaciones | El ticket cambia a `closed`, guarda motivo `sin_respuesta_cliente`, registra historial y notifica a cliente y agente | Alta |
 | QA-33 | Exportacion CSV de tickets | Supervisor | Dashboard con dataset bootstrap | Abrir dashboard y descargar `Exportar tickets CSV` | Se descarga archivo CSV con encabezado valido y tickets reales | Media |
 | QA-34 | Exportacion JSON de metricas | Supervisor | Dashboard con dataset bootstrap | Abrir dashboard y descargar `Descargar metricas JSON` | Responde JSON valido con `counts`, `agedTickets` y `generatedAt` | Media |
+| QA-35 | Exportacion CSV filtrada de tickets | Supervisor | Vista `/app/supervisor/tickets` con filtros activos | Aplicar filtros y descargar `Exportar CSV filtrado` | El CSV descargado contiene solo tickets que cumplen los filtros activos | Alta |
+| QA-36 | Exportacion CSV filtrada avanzada de tickets | Supervisor | Vista `/app/supervisor/tickets` con `departmentId`, `assignedToId`, `createdFrom` y `createdTo` | Aplicar filtros avanzados y descargar `Exportar CSV filtrado` | El CSV descargado contiene solo tickets del departamento, agente asignado y rango de fechas seleccionados; el filename refleja contexto de filtros avanzados | Alta |
+| QA-37 | Dashboard KPI ampliado | Supervisor | Dashboard con dataset bootstrap | Abrir `/app/supervisor/dashboard` y revisar tarjetas y desgloses ampliados | Se muestran tasa de reapertura, tiempo promedio hasta `resolved`, tiempo promedio hasta `closed` y backlog envejecido por estado/departamento | Alta |
+| QA-38 | Exportacion JSON KPI ampliado | Supervisor | Dashboard con dataset bootstrap | Descargar `Descargar metricas JSON` y revisar payload | El JSON incluye `reopenedRatePercent`, `averageTimeToResolvedHours`, `averageTimeToClosedHours`, `agedTicketsByStatus` y `agedTicketsByDepartment` | Alta |
+| QA-39 | Resumen ejecutivo en dashboard | Supervisor | Dashboard con dataset operativo | Abrir `/app/supervisor/dashboard` y revisar bloque ejecutivo superior | Se muestra bloque `Resumen ejecutivo` con lectura gerencial, highlights y focos operativos, ademas del acceso `Descargar resumen gerencial` | Alta |
+| QA-40 | Exportacion Markdown gerencial | Supervisor | Dashboard con dataset operativo | Descargar `Descargar resumen gerencial` | Se descarga archivo Markdown con encabezado ejecutivo, KPIs principales, highlights y focos operativos | Alta |
+| QA-41 | Job run exitoso de autocierre | Sistema | Ticket `resolved` vencido y colecciones `job_runs`/`job_locks` disponibles | Ejecutar `tickets:auto-close` y revisar persistencia operativa | Se crea `job_run` en `success`, se registran conteos y no quedan locks activos | Alta |
+| QA-42 | Lock activo en autocierre | Sistema | Lock activo existente para `tickets:auto-close` | Ejecutar `tickets:auto-close` durante lock vigente | La corrida queda en `skipped`, registra motivo de lock y no altera el lock activo | Alta |
+| QA-43 | Dry-run de autocierre | Sistema | Ticket `resolved` vencido | Ejecutar `DRY_RUN=1 JOB_SOURCE=manual npm run tickets:auto-close` | El `job_run` queda en `success` sin cierres reales y el ticket sigue en `resolved` | Alta |
+| QA-44 | Partial failure de autocierre | Sistema | Dos tickets `resolved` vencidos, uno con falla forzada | Ejecutar `tickets:auto-close` con falla controlada sobre un ticket | El `job_run` queda en `partial_failure`, al menos un ticket se cierra y el ticket forzado permanece en `resolved` con error resumido registrado | Alta |
+| QA-45 | Health check operativo | Sistema | App, PocketBase y al menos una corrida previa de autocierre disponibles | Abrir `/api/health` | Responde `ok=true`, incluye `dependencies.pocketbase.ok=true`, `dependencies.jobs.autoClose`, `responseTimeMs`, `correlationId` y `timestamp` | Alta |
+| QA-46 | Exportaciones con logging operativo | Supervisor | Dashboard y exportaciones supervisor disponibles | Descargar CSV de tickets, JSON de metricas y resumen gerencial | Las exportaciones siguen respondiendo correctamente despues de agregar logging operativo estructurado | Media |
+| QA-50 | Paginas supervisor bloqueadas para cliente | Cliente | Sesion cliente valida | Intentar abrir `/app/supervisor/dashboard`, `/app/supervisor/tickets`, `/app/supervisor/users` y `/app/supervisor/departments` | El cliente no accede al contenido supervisor; el sistema redirige o bloquea segun la ruta | Alta |
+| QA-51 | Paginas supervisor bloqueadas para agente | Agente | Sesion agente valida | Intentar abrir `/app/supervisor/dashboard`, `/app/supervisor/tickets`, `/app/supervisor/users` y `/app/supervisor/departments` | El agente no accede al contenido supervisor; el sistema redirige o bloquea segun la ruta | Alta |
+| QA-52 | Exports supervisor bloqueados por rol | Cliente y Agente | Sesion valida no supervisor | Intentar consumir `/app/supervisor/exports/tickets`, `/app/supervisor/exports/metrics` y `/app/supervisor/exports/summary` | Todas las rutas responden `403` para roles no autorizados | Alta |
+| QA-53 | Notificacion ajena no modificable | Cliente o Agente | Notificacion existente de otro usuario | Invocar `markNotificationReadAction` con `notificationId` ajeno | La accion no marca como leida la notificacion de otro usuario y no altera su estado | Alta |
+| QA-54 | Backup local de PocketBase | Sistema | `pocketbase/pb_data` disponible | Ejecutar `npm run pb:backup` | Se crea respaldo en `backups/pocketbase/` con `manifest.json`, `data.db`, `auxiliary.db` y `storage/` | Alta |
+| QA-55 | Restore check sin mutacion | Sistema | Respaldo existente en `backups/pocketbase/` | Ejecutar `PB_RESTORE_BACKUP_PATH=<ruta> npm run pb:restore:check` | El comando valida estructura del respaldo y no modifica `pocketbase/pb_data` | Alta |
+| QA-56 | Restore protegido contra ejecucion accidental | Sistema | Respaldo existente en `backups/pocketbase/` | Ejecutar `PB_RESTORE_BACKUP_PATH=<ruta> npm run pb:restore` sin `PB_RESTORE_APPLY=1` | El comando no reemplaza `pb_data`, informa modo protegido y no crea snapshot de restore | Alta |
 
 ## Nota de continuidad para Fase 4.6
 

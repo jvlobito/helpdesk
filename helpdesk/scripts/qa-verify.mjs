@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
 
 import PocketBase from "pocketbase";
 
@@ -103,6 +104,25 @@ function getRoleForResult(id) {
     "QA-AUTO-24": "Sistema",
     "QA-AUTO-25": "Supervisor",
     "QA-AUTO-26": "Supervisor",
+    "QA-AUTO-27": "Supervisor",
+    "QA-AUTO-28": "Supervisor",
+    "QA-AUTO-29": "Supervisor",
+    "QA-AUTO-30": "Supervisor",
+    "QA-AUTO-31": "Supervisor",
+    "QA-AUTO-32": "Supervisor",
+    "QA-AUTO-33": "Sistema",
+    "QA-AUTO-34": "Sistema",
+    "QA-AUTO-35": "Sistema",
+    "QA-AUTO-36": "Sistema",
+    "QA-AUTO-37": "Sistema",
+    "QA-AUTO-38": "Supervisor",
+    "QA-AUTO-41": "Cliente",
+    "QA-AUTO-42": "Agente",
+    "QA-AUTO-43": "Sistema",
+    "QA-AUTO-44": "Sistema",
+    "QA-AUTO-45": "Sistema",
+    "QA-AUTO-46": "Sistema",
+    "QA-AUTO-47": "Sistema",
   };
 
   return byId[id] ?? "Sistema";
@@ -234,6 +254,84 @@ function createTextFile(name, content) {
 
 function createOversizedFile(name, sizeInBytes = 5 * 1024 * 1024 + 1) {
   return new File([new Uint8Array(sizeInBytes)], name, { type: "application/octet-stream" });
+}
+
+function calculateAverageHoursFromRecords(records, getEndTimestamp) {
+  const durations = records
+    .map((record) => {
+      const createdAt = Date.parse(record.created_at || record.created || "");
+      const endAt = Date.parse(getEndTimestamp(record) || "");
+
+      if (Number.isNaN(createdAt) || Number.isNaN(endAt) || endAt < createdAt) {
+        return null;
+      }
+
+      return (endAt - createdAt) / (1000 * 60 * 60);
+    })
+    .filter((duration) => duration !== null);
+
+  if (durations.length === 0) {
+    return null;
+  }
+
+  return Number((durations.reduce((sum, duration) => sum + duration, 0) / durations.length).toFixed(1));
+}
+
+function extractJsonObjectFromOutput(output) {
+  const start = output.indexOf("{");
+  const end = output.lastIndexOf("}");
+
+  if (start === -1 || end === -1 || end < start) {
+    return null;
+  }
+
+  return JSON.parse(output.slice(start, end + 1));
+}
+
+function runScript(command, extraEnv = {}) {
+  return spawnSync("npm", ["run", command], {
+    cwd: projectRoot,
+    env: {
+      ...process.env,
+      ...extraEnv,
+    },
+    encoding: "utf8",
+    shell: true,
+  });
+}
+
+async function computeExpectedDashboardMetrics(adminPb) {
+  const [tickets, departments] = await Promise.all([
+    adminPb.collection("tickets").getFullList({ sort: "-updated_at" }),
+    adminPb.collection("departments").getFullList({ sort: "name" }),
+  ]);
+  const agedThreshold = 7 * 24 * 60 * 60 * 1000;
+  const now = Date.now();
+  const departmentMap = new Map(departments.map((department) => [department.id, department.name]));
+  const reopenedTickets = tickets.filter((ticket) => ticket.status === "reopened");
+  const resolvedTickets = tickets.filter((ticket) => typeof ticket.resolved_at === "string" && ticket.resolved_at.length > 0);
+  const closedTickets = tickets.filter((ticket) => typeof ticket.close_reason === "string" && ticket.close_reason.length > 0);
+  const agedTickets = tickets.filter((ticket) => {
+    const createdAt = Date.parse(ticket.created_at || ticket.created || "");
+    return !Number.isNaN(createdAt) && now - createdAt > agedThreshold && ticket.status !== "closed";
+  });
+  const agedTicketsByStatus = ["new", "in_progress", "waiting", "resolved", "reopened", "closed"]
+    .map((label) => ({ count: agedTickets.filter((ticket) => ticket.status === label).length, label }))
+    .filter((item) => item.count > 0);
+  const agedTicketsByDepartment = departments
+    .map((department) => ({
+      count: agedTickets.filter((ticket) => departmentMap.get(ticket.department_id) === department.name).length,
+      label: department.name,
+    }))
+    .filter((item) => item.count > 0);
+
+  return {
+    agedTicketsByDepartment,
+    agedTicketsByStatus,
+    averageTimeToClosedHours: calculateAverageHoursFromRecords(closedTickets, (ticket) => ticket.updated_at || ticket.updated || ""),
+    averageTimeToResolvedHours: calculateAverageHoursFromRecords(resolvedTickets, (ticket) => ticket.resolved_at || ""),
+    reopenedRatePercent: tickets.length === 0 ? 0 : Number(((reopenedTickets.length / tickets.length) * 100).toFixed(1)),
+  };
 }
 
 async function createAdminClient() {
@@ -435,9 +533,11 @@ async function writeReport() {
 
 async function main() {
   await runCheck("QA-AUTO-01", "Health endpoint", async () => {
-    const { response, text } = await fetchText(`${appUrl}/api/health`);
+    const response = await fetch(`${appUrl}/api/health`);
+    const json = await response.json();
+
     assert(response.ok, `Health devolvio ${response.status}.`);
-    assert(text.includes('"ok":true'), "Health no devolvio ok=true.");
+    assert(json.ok === true, "Health no devolvio ok=true.");
     return "`/api/health` respondio 200 con ok=true.";
   });
 
@@ -1118,7 +1218,6 @@ async function main() {
     const { response } = await fetchText(`${appUrl}/api/health`);
     assert(response.ok, "La app no estaba disponible antes de ejecutar autocierre.");
 
-    const { spawnSync } = await import("node:child_process");
     const result = spawnSync("npm", ["run", "tickets:auto-close"], {
       cwd: projectRoot,
       env: {
@@ -1144,6 +1243,405 @@ async function main() {
     return `El ticket ${persisted.ticket_number} se autocerro por vencimiento con motivo sin_respuesta_cliente y notificaciones emitidas.`;
   });
 
+  await runCheck("QA-AUTO-33", "Autocierre registra job run exitoso", async () => {
+    const adminPb = await createAdminClient();
+    const ticket = await createResolvedTicket(adminPb, {
+      resolution_note: "Ticket resuelto para validacion de job run exitoso.",
+      resolved_at: new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString(),
+      title: `QA job run success ${Date.now()}`,
+      updated_at: new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString(),
+    });
+    const result = spawnSync("npm", ["run", "tickets:auto-close"], {
+      cwd: projectRoot,
+      env: {
+        ...process.env,
+        AUTO_CLOSE_AFTER_HOURS: "48",
+        JOB_SOURCE: "qa",
+      },
+      encoding: "utf8",
+      shell: true,
+    });
+
+    assert(result.status === 0, `El script de autocierre con job run fallo: ${result.stderr || result.stdout}`);
+    const runOutput = extractJsonObjectFromOutput(result.stdout);
+    assert(runOutput?.jobRunId, "El script de autocierre no devolvio jobRunId en la salida.");
+
+    const jobRun = await adminPb.collection("job_runs").getOne(runOutput.jobRunId);
+    const locks = await adminPb.collection("job_locks").getFullList({
+      filter: 'job_name = "tickets:auto-close"',
+    });
+    const persisted = await adminPb.collection("tickets").getOne(ticket.id);
+
+    assert(jobRun.status === "success", "La corrida de autocierre no quedo registrada como success.");
+    assert(jobRun.closed_count >= 1, "La corrida de autocierre no registro cierres realizados.");
+    assert(typeof jobRun.finished_at === "string" && jobRun.finished_at.length > 0, "La corrida de autocierre no guardo finished_at.");
+    assert(locks.length === 0, "El lock del job no se libero tras la corrida exitosa.");
+    assert(persisted.status === "closed", "El ticket de prueba no quedo autocerrado en la corrida exitosa.");
+
+    return `El autocierre registro corrida success (${jobRun.id}) y libero el lock correctamente.`;
+  });
+
+  await runCheck("QA-AUTO-34", "Lock activo evita segunda corrida de autocierre", async () => {
+    const adminPb = await createAdminClient();
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 10 * 60 * 1000);
+
+    let lock;
+
+    try {
+      const existing = await adminPb.collection("job_locks").getFirstListItem('job_name = "tickets:auto-close"');
+      lock = await adminPb.collection("job_locks").update(existing.id, {
+        job_name: "tickets:auto-close",
+        lock_expires_at: expiresAt.toISOString().replace("T", " "),
+        locked_at: now.toISOString().replace("T", " "),
+        locked_by: "qa-lock-test",
+      });
+    } catch {
+      lock = await adminPb.collection("job_locks").create({
+        job_name: "tickets:auto-close",
+        lock_expires_at: expiresAt.toISOString().replace("T", " "),
+        locked_at: now.toISOString().replace("T", " "),
+        locked_by: "qa-lock-test",
+      });
+    }
+
+    const result = spawnSync("npm", ["run", "tickets:auto-close"], {
+      cwd: projectRoot,
+      env: {
+        ...process.env,
+        AUTO_CLOSE_AFTER_HOURS: "48",
+        JOB_SOURCE: "qa",
+      },
+      encoding: "utf8",
+      shell: true,
+    });
+
+    assert(result.status === 0, `La corrida con lock activo devolvio error inesperado: ${result.stderr || result.stdout}`);
+    const runOutput = extractJsonObjectFromOutput(result.stdout);
+    assert(runOutput?.jobRunId, "La corrida omitida no devolvio jobRunId en la salida.");
+
+    const skippedRun = await adminPb.collection("job_runs").getOne(runOutput.jobRunId);
+    const persistedLock = await adminPb.collection("job_locks").getFirstListItem('job_name = "tickets:auto-close"');
+
+    assert(skippedRun.error_summary.includes("Lock activo"), "La corrida omitida no registro el motivo de lock activo.");
+    assert(persistedLock.locked_by === "qa-lock-test", "La corrida omitida modifico un lock activo que no debia tocar.");
+
+    await adminPb.collection("job_locks").delete(lock.id);
+
+    return `La segunda corrida quedo en skipped (${skippedRun.id}) al detectar lock activo.`;
+  });
+
+  await runCheck("QA-AUTO-35", "Dry run de autocierre no modifica tickets", async () => {
+    const adminPb = await createAdminClient();
+    const oldResolvedAt = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
+    const ticket = await createResolvedTicket(adminPb, {
+      resolution_note: "Ticket resuelto para validacion dry-run.",
+      resolved_at: oldResolvedAt,
+      title: `QA dry run ${Date.now()}`,
+      updated_at: oldResolvedAt,
+    });
+    const result = spawnSync("npm", ["run", "tickets:auto-close"], {
+      cwd: projectRoot,
+      env: {
+        ...process.env,
+        AUTO_CLOSE_AFTER_HOURS: "48",
+        DRY_RUN: "1",
+        JOB_SOURCE: "qa",
+      },
+      encoding: "utf8",
+      shell: true,
+    });
+
+    assert(result.status === 0, `El dry-run de autocierre fallo: ${result.stderr || result.stdout}`);
+    const runOutput = extractJsonObjectFromOutput(result.stdout);
+    assert(runOutput?.jobRunId, "El dry-run no devolvio jobRunId en la salida.");
+
+    const dryRun = await adminPb.collection("job_runs").getOne(runOutput.jobRunId);
+    const persisted = await adminPb.collection("tickets").getOne(ticket.id);
+
+    assert(dryRun.status === "success", "El dry-run no quedo registrado como success.");
+    assert(dryRun.candidate_count >= 1, "El dry-run no detecto candidatos esperados.");
+    assert(dryRun.closed_count === 0, "El dry-run reporto cierres reales cuando no debia hacerlo.");
+    assert(persisted.status === "resolved", "El dry-run modifico el ticket cuando debia dejarlo en resolved.");
+    assert(!persisted.closed_at, "El dry-run persistio closed_at cuando no debia hacerlo.");
+
+    return `El dry-run registro corrida ${dryRun.id} sin modificar el ticket ${persisted.ticket_number}.`;
+  });
+
+  await runCheck("QA-AUTO-36", "Autocierre registra partial failure controlado", async () => {
+    const adminPb = await createAdminClient();
+    const oldResolvedAt = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
+    const failedTicket = await createResolvedTicket(adminPb, {
+      resolution_note: "Ticket resuelto para validacion de partial failure.",
+      resolved_at: oldResolvedAt,
+      title: `QA partial fail target ${Date.now()}`,
+      updated_at: oldResolvedAt,
+    });
+    const successfulTicket = await createResolvedTicket(adminPb, {
+      resolution_note: "Segundo ticket resuelto para validar cierre parcial exitoso.",
+      resolved_at: oldResolvedAt,
+      title: `QA partial fail companion ${Date.now()}`,
+      updated_at: oldResolvedAt,
+    });
+    const result = spawnSync("npm", ["run", "tickets:auto-close"], {
+      cwd: projectRoot,
+      env: {
+        ...process.env,
+        AUTO_CLOSE_AFTER_HOURS: "48",
+        FORCE_FAIL_TICKET_ID: failedTicket.id,
+        JOB_SOURCE: "qa",
+      },
+      encoding: "utf8",
+      shell: true,
+    });
+
+    assert(result.status === 0, `La corrida con partial failure devolvio error inesperado: ${result.stderr || result.stdout}`);
+    const runOutput = extractJsonObjectFromOutput(result.stdout);
+    assert(runOutput?.jobRunId, "La corrida con partial failure no devolvio jobRunId en la salida.");
+
+    const jobRun = await adminPb.collection("job_runs").getOne(runOutput.jobRunId);
+    const persistedFailed = await adminPb.collection("tickets").getOne(failedTicket.id);
+    const persistedSuccessful = await adminPb.collection("tickets").getOne(successfulTicket.id);
+
+    assert(jobRun.status === "partial_failure", "La corrida no quedo registrada como partial_failure.");
+    assert(jobRun.closed_count >= 1, "La corrida partial_failure no registro cierres exitosos parciales.");
+    assert(jobRun.error_count >= 1, "La corrida partial_failure no registro errores.");
+    assert(jobRun.error_summary.includes(failedTicket.ticket_number), "La corrida partial_failure no incluyo el ticket fallido en error_summary.");
+    assert(persistedFailed.status === "resolved", "El ticket forzado a fallar no permanecio en resolved.");
+    assert(persistedSuccessful.status === "closed", "El ticket acompanante no se cerro durante la corrida parcial.");
+
+    return `La corrida ${jobRun.id} quedo en partial_failure, mantuvo ${persistedFailed.ticket_number} en resolved y cerro ${persistedSuccessful.ticket_number}.`;
+  });
+
+  await runCheck("QA-AUTO-37", "Health endpoint con dependencia real de PocketBase", async () => {
+    const autoCloseResult = spawnSync("npm", ["run", "tickets:auto-close"], {
+      cwd: projectRoot,
+      env: {
+        ...process.env,
+        AUTO_CLOSE_AFTER_HOURS: "48",
+        DRY_RUN: "1",
+        JOB_SOURCE: "qa",
+      },
+      encoding: "utf8",
+      shell: true,
+    });
+
+    assert(autoCloseResult.status === 0, `No se pudo preparar senal de job en health: ${autoCloseResult.stderr || autoCloseResult.stdout}`);
+
+    const response = await fetch(`${appUrl}/api/health`);
+    const json = await response.json();
+
+    assert(response.ok, `El health check operativo devolvio ${response.status}.`);
+    assert(json.ok === true, "El health check operativo no devolvio ok=true.");
+    assert(json.dependencies?.pocketbase?.ok === true, "El health check operativo no reflejo PocketBase en estado OK.");
+    assert(json.dependencies?.jobs?.autoClose, "El health check operativo no devolvio resumen del ultimo job de autocierre.");
+    assert(typeof json.dependencies.jobs.autoClose.status === "string" && json.dependencies.jobs.autoClose.status.length > 0, "El health check operativo no devolvio status del ultimo job de autocierre.");
+    assert(typeof json.dependencies.jobs.autoClose.ok === "boolean", "El health check operativo no devolvio bandera ok del ultimo job de autocierre.");
+    assert(typeof json.correlationId === "string" && json.correlationId.length > 0, "El health check operativo no devolvio correlationId.");
+    assert(typeof json.responseTimeMs === "number" && json.responseTimeMs >= 0, "El health check operativo no devolvio responseTimeMs valido.");
+    assert(typeof json.timestamp === "string" && json.timestamp.length > 0, "El health check operativo no devolvio timestamp.");
+
+    return "`/api/health` refleja dependencia PocketBase y tiempo de respuesta operativo.";
+  });
+
+  await runCheck("QA-AUTO-38", "Exportaciones supervisor con logging operativo", async () => {
+    const supervisorSession = await loginViaApp(users.supervisor.email, users.supervisor.password);
+    const csvResponse = await fetch(`${appUrl}/app/supervisor/exports/tickets`, {
+      headers: {
+        cookie: supervisorSession.cookie,
+      },
+    });
+    const metricsResponse = await fetch(`${appUrl}/app/supervisor/exports/metrics`, {
+      headers: {
+        cookie: supervisorSession.cookie,
+      },
+    });
+    const summaryResponse = await fetch(`${appUrl}/app/supervisor/exports/summary`, {
+      headers: {
+        cookie: supervisorSession.cookie,
+      },
+    });
+
+    assert(csvResponse.ok, `La exportacion CSV devolvio ${csvResponse.status} tras agregar logging operativo.`);
+    assert(metricsResponse.ok, `La exportacion JSON devolvio ${metricsResponse.status} tras agregar logging operativo.`);
+    assert(summaryResponse.ok, `La exportacion Markdown devolvio ${summaryResponse.status} tras agregar logging operativo.`);
+
+    return "Las exportaciones supervisor siguen respondiendo correctamente tras agregar logging operativo estructurado.";
+  });
+
+  await runCheck("QA-AUTO-41", "Cliente bloqueado en paginas supervisor", async () => {
+    const customerSession = await loginViaApp(users.cliente.email, users.cliente.password);
+    const dashboard = await fetch(`${appUrl}/app/supervisor/dashboard`, {
+      headers: { cookie: customerSession.cookie },
+      redirect: "manual",
+    });
+    const tickets = await fetch(`${appUrl}/app/supervisor/tickets`, {
+      headers: { cookie: customerSession.cookie },
+      redirect: "manual",
+    });
+    const usersPage = await fetch(`${appUrl}/app/supervisor/users`, {
+      headers: { cookie: customerSession.cookie },
+      redirect: "manual",
+    });
+    const departments = await fetch(`${appUrl}/app/supervisor/departments`, {
+      headers: { cookie: customerSession.cookie },
+      redirect: "manual",
+    });
+
+    assert([302, 307].includes(dashboard.status), `El cliente no fue redirigido al bloquear dashboard supervisor: ${dashboard.status}.`);
+    assert([302, 307].includes(tickets.status), `El cliente no fue redirigido al bloquear tickets supervisor: ${tickets.status}.`);
+    assert([302, 307].includes(usersPage.status), `El cliente no fue redirigido al bloquear users supervisor: ${usersPage.status}.`);
+    assert([302, 307].includes(departments.status), `El cliente no fue redirigido al bloquear departments supervisor: ${departments.status}.`);
+
+    return "El cliente no accede a paginas supervisor por URL directa y es redirigido fuera de ese contexto.";
+  });
+
+  await runCheck("QA-AUTO-42", "Agente bloqueado en paginas supervisor", async () => {
+    const agentSession = await loginViaApp(users.agente.email, users.agente.password);
+    const dashboard = await fetch(`${appUrl}/app/supervisor/dashboard`, {
+      headers: { cookie: agentSession.cookie },
+      redirect: "manual",
+    });
+    const tickets = await fetch(`${appUrl}/app/supervisor/tickets`, {
+      headers: { cookie: agentSession.cookie },
+      redirect: "manual",
+    });
+    const usersPage = await fetch(`${appUrl}/app/supervisor/users`, {
+      headers: { cookie: agentSession.cookie },
+      redirect: "manual",
+    });
+    const departments = await fetch(`${appUrl}/app/supervisor/departments`, {
+      headers: { cookie: agentSession.cookie },
+      redirect: "manual",
+    });
+
+    assert([302, 307].includes(dashboard.status), `El agente no fue redirigido al bloquear dashboard supervisor: ${dashboard.status}.`);
+    assert([302, 307].includes(tickets.status), `El agente no fue redirigido al bloquear tickets supervisor: ${tickets.status}.`);
+    assert([302, 307].includes(usersPage.status), `El agente no fue redirigido al bloquear users supervisor: ${usersPage.status}.`);
+    assert([302, 307].includes(departments.status), `El agente no fue redirigido al bloquear departments supervisor: ${departments.status}.`);
+
+    return "El agente no accede a paginas supervisor por URL directa y es redirigido fuera de ese contexto.";
+  });
+
+  await runCheck("QA-AUTO-43", "Exports supervisor bloqueados para roles no autorizados", async () => {
+    const customerSession = await loginViaApp(users.cliente.email, users.cliente.password);
+    const agentSession = await loginViaApp(users.agente.email, users.agente.password);
+    const paths = [
+      "/app/supervisor/exports/tickets",
+      "/app/supervisor/exports/metrics",
+      "/app/supervisor/exports/summary",
+    ];
+
+    for (const pagePath of paths) {
+      const customerResponse = await fetch(`${appUrl}${pagePath}`, {
+        headers: { cookie: customerSession.cookie },
+        redirect: "manual",
+      });
+      const agentResponse = await fetch(`${appUrl}${pagePath}`, {
+        headers: { cookie: agentSession.cookie },
+        redirect: "manual",
+      });
+
+      assert(customerResponse.status === 403, `La ruta ${pagePath} no devolvio 403 para cliente.`);
+      assert(agentResponse.status === 403, `La ruta ${pagePath} no devolvio 403 para agente.`);
+    }
+
+    return "Los exports supervisor responden 403 para cliente y agente sin permisos.";
+  });
+
+  await runCheck("QA-AUTO-44", "Accion de notificacion no modifica recurso ajeno", async () => {
+    const adminPb = await createAdminClient();
+    const agentSession = await loginViaApp(users.agente.email, users.agente.password);
+    const timestamp = new Date().toISOString();
+    const customer = await getUserByEmail(adminPb, users.cliente.email);
+    const agent = await getUserByEmail(adminPb, users.agente.email);
+    const notification = await adminPb.collection("notifications").create({
+      created_at: timestamp,
+      created_ts: Date.now(),
+      href: "/app/tickets",
+      message: "Notificacion QA propiedad cliente.",
+      read: false,
+      title: "QA notification ownership",
+      updated_at: timestamp,
+      user_id: customer.id,
+    });
+
+    const response = await fetch(`${appUrl}/app`, {
+      body: new URLSearchParams({ notificationId: notification.id }),
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        cookie: agentSession.cookie,
+      },
+      method: "POST",
+    });
+
+    assert(response.ok, `La invocacion indirecta de markNotificationReadAction devolvio ${response.status}.`);
+
+    const persisted = await adminPb.collection("notifications").getOne(notification.id);
+
+    assert(persisted.user_id === customer.id, "La notificacion ya no pertenece al usuario esperado despues del intento cruzado.");
+    assert(persisted.read === false, "La accion permitio marcar como leida una notificacion ajena.");
+    assert(agent.id !== customer.id, "El dataset QA uso usuarios iguales para validar propiedad de notificacion.");
+
+    return "La accion de notificacion ignoro un notificationId ajeno y no altero el registro del cliente.";
+  });
+
+  await runCheck("QA-AUTO-45", "Backup local de PocketBase", async () => {
+    const result = runScript("pb:backup");
+
+    assert(result.status === 0, `El backup local de PocketBase fallo: ${result.stderr || result.stdout}`);
+
+    const payload = extractJsonObjectFromOutput(result.stdout);
+
+    assert(payload?.backupPath, "El backup local no devolvio backupPath.");
+    assert(payload.files?.dataDb === true, "El backup local no incluyo data.db.");
+    assert(payload.files?.auxiliaryDb === true, "El backup local no incluyo auxiliary.db.");
+    assert(payload.files?.storageDir === true, "El backup local no incluyo storage/.");
+
+    return `El backup local genero respaldo valido en ${payload.backupPath}.`;
+  });
+
+  await runCheck("QA-AUTO-46", "Restore check sin mutacion", async () => {
+    const backupResult = runScript("pb:backup");
+    assert(backupResult.status === 0, `No se pudo preparar respaldo para restore-check: ${backupResult.stderr || backupResult.stdout}`);
+    const backupPayload = extractJsonObjectFromOutput(backupResult.stdout);
+    const checkResult = runScript("pb:restore:check", {
+      PB_RESTORE_BACKUP_PATH: backupPayload.backupPath,
+    });
+
+    assert(checkResult.status === 0, `El restore-check fallo: ${checkResult.stderr || checkResult.stdout}`);
+
+    const payload = extractJsonObjectFromOutput(checkResult.stdout);
+
+    assert(payload?.ok === true, "El restore-check no devolvio ok=true.");
+    assert(payload?.mode === "check-only", "El restore-check no se ejecuto en modo check-only.");
+    assert(payload?.backupPath === backupPayload.backupPath, "El restore-check no valido el respaldo esperado.");
+
+    return `El restore-check valido correctamente el respaldo ${payload.backupPath} sin mutar datos activos.`;
+  });
+
+  await runCheck("QA-AUTO-47", "Restore protegido contra ejecucion accidental", async () => {
+    const backupResult = runScript("pb:backup");
+    assert(backupResult.status === 0, `No se pudo preparar respaldo para restore protegido: ${backupResult.stderr || backupResult.stdout}`);
+    const backupPayload = extractJsonObjectFromOutput(backupResult.stdout);
+    const restoreResult = runScript("pb:restore", {
+      PB_RESTORE_BACKUP_PATH: backupPayload.backupPath,
+    });
+
+    assert(restoreResult.status === 0, `El restore protegido devolvio error inesperado: ${restoreResult.stderr || restoreResult.stdout}`);
+
+    const payload = extractJsonObjectFromOutput(restoreResult.stdout);
+
+    assert(payload?.ok === true, "El restore protegido no devolvio ok=true.");
+    assert(payload?.snapshotCreated === false, "El restore protegido no debio crear snapshot sin confirmacion explicita.");
+    assert(
+      typeof payload?.message === "string" && payload.message.includes("PB_RESTORE_APPLY=1"),
+      "El restore protegido no devolvio mensaje claro de confirmacion requerida.",
+    );
+
+    return "El restore de PocketBase no se aplica accidentalmente sin PB_RESTORE_APPLY=1.";
+  });
+
   await runCheck("QA-AUTO-25", "Exportacion CSV de tickets para supervisor", async () => {
     const supervisorSession = await loginViaApp(users.supervisor.email, users.supervisor.password);
     const dashboard = await getPageWithCookie("/app/supervisor/dashboard", supervisorSession.cookie);
@@ -1156,7 +1654,7 @@ async function main() {
     assertIncludes(dashboard, "Exportar tickets CSV", "El dashboard de supervisor no mostro el acceso a exportacion CSV.");
     assert(response.ok, `La exportacion CSV devolvio ${response.status}.`);
     assert((response.headers.get("content-type") || "").includes("text/csv"), "La exportacion de tickets no devolvio content-type CSV.");
-    assertIncludes(response.headers.get("content-disposition") || "", "tickets-export.csv", "La exportacion CSV no devolvio nombre de archivo esperado.");
+    assertIncludes(response.headers.get("content-disposition") || "", "tickets-export", "La exportacion CSV no devolvio nombre de archivo esperado.");
     assertIncludes(text, '"ticket_number","status","priority","category"', "El CSV no contiene encabezado esperado de tickets.");
     assertIncludes(text, "TKT-", "El CSV no contiene tickets exportados.");
 
@@ -1181,6 +1679,171 @@ async function main() {
     assert(Array.isArray(json.agedTickets), "La exportacion JSON no incluyo agedTickets como arreglo.");
 
     return "Supervisor descarga metricas JSON con counts, agedTickets y marca temporal de generacion.";
+  });
+
+  await runCheck("QA-AUTO-27", "Exportacion CSV filtrada para supervisor", async () => {
+    const supervisorSession = await loginViaApp(users.supervisor.email, users.supervisor.password);
+    const query = "status=closed&priority=high&q=TKT-1003";
+    const page = await getPageWithCookie(`/app/supervisor/tickets?${query}`, supervisorSession.cookie);
+    const { response, text } = await fetchText(`${appUrl}/app/supervisor/exports/tickets?${query}`, {
+      headers: {
+        cookie: supervisorSession.cookie,
+      },
+    });
+    const rows = text.trim().split("\n").slice(1).filter(Boolean);
+
+    assertIncludes(page, "Exportar CSV filtrado", "La vista global de supervisor no mostro el acceso a exportacion CSV filtrada.");
+    assert(response.ok, `La exportacion CSV filtrada devolvio ${response.status}.`);
+    assertIncludes(response.headers.get("content-disposition") || "", "status-closed-priority-high-search", "El nombre del archivo no reflejo el contexto de filtros activos.");
+    assert(rows.length > 0, "La exportacion filtrada no devolvio filas de tickets cuando debia haber coincidencias.");
+    assert(rows.every((row) => row.includes('"closed"') && row.includes('"high"') && row.includes('"TKT-1003')), "El CSV filtrado incluyo filas fuera de los filtros activos esperados.");
+
+    return "Supervisor exporta CSV filtrado y el archivo respeta status, priority y q activos.";
+  });
+
+  await runCheck("QA-AUTO-28", "Exportacion CSV filtrada avanzada para supervisor", async () => {
+    const adminPb = await createAdminClient();
+    const supervisorSession = await loginViaApp(users.supervisor.email, users.supervisor.password);
+    const supportDept = await adminPb.collection("departments").getFirstListItem('name = "Soporte TI"');
+    const agent = await getUserByEmail(adminPb, users.agente.email);
+    const query = new URLSearchParams({
+      assignedToId: agent.id,
+      createdFrom: "2026-04-01",
+      createdTo: "2026-04-01",
+      departmentId: supportDept.id,
+    }).toString();
+    const page = await getPageWithCookie(`/app/supervisor/tickets?${query}`, supervisorSession.cookie);
+    const { response, text } = await fetchText(`${appUrl}/app/supervisor/exports/tickets?${query}`, {
+      headers: {
+        cookie: supervisorSession.cookie,
+      },
+    });
+    const rows = text.trim().split("\n").slice(1).filter(Boolean);
+
+    assertIncludes(page, "Todos los departamentos", "La vista global de supervisor no mostro el filtro por departamento.");
+    assertIncludes(page, "Todos los agentes asignados", "La vista global de supervisor no mostro el filtro por agente asignado.");
+    assertIncludes(page, "Exportar CSV filtrado", "La vista global de supervisor no mostro el acceso a exportacion CSV filtrada.");
+    assert(response.ok, `La exportacion CSV filtrada avanzada devolvio ${response.status}.`);
+    assertIncludes(
+      response.headers.get("content-disposition") || "",
+      "department-assigned-date-range",
+      "El nombre del archivo no reflejo el contexto de filtros avanzados.",
+    );
+    assert(rows.length > 0, "La exportacion filtrada avanzada no devolvio filas cuando debia haber coincidencias.");
+    assert(
+      rows.every(
+        (row) =>
+          row.includes('"TKT-00001"') &&
+          row.includes('"Soporte TI"') &&
+          row.includes('"ana.agente@techsupport.local"') &&
+          row.includes('"2026-04-01 08:30:00.000Z"'),
+      ),
+      "El CSV filtrado avanzado incluyo filas fuera del departamento, agente asignado o rango de fechas esperado.",
+    );
+
+    return "Supervisor exporta CSV filtrado y el archivo respeta departamento, agente asignado y rango de fechas activos.";
+  });
+
+  await runCheck("QA-AUTO-29", "Dashboard de supervisor con KPI ampliado", async () => {
+    const adminPb = await createAdminClient();
+    const expected = await computeExpectedDashboardMetrics(adminPb);
+    const supervisorSession = await loginViaApp(users.supervisor.email, users.supervisor.password);
+    const dashboard = await getPageWithCookie("/app/supervisor/dashboard", supervisorSession.cookie);
+
+    assertIncludes(dashboard, "Tasa de reapertura", "El dashboard no mostro la tarjeta de tasa de reapertura.");
+    assertIncludes(dashboard, "Tiempo promedio hasta resolved", "El dashboard no mostro el KPI de tiempo hasta resolved.");
+    assertIncludes(dashboard, "Tiempo promedio hasta closed", "El dashboard no mostro el KPI de tiempo hasta closed.");
+    assertIncludes(dashboard, `${expected.reopenedRatePercent}%`, "El dashboard no mostro la tasa de reapertura esperada segun el dataset actual.");
+    assertIncludes(
+      dashboard,
+      expected.averageTimeToResolvedHours === null ? "N/D" : `${expected.averageTimeToResolvedHours} h`,
+      "El dashboard no mostro el tiempo promedio hasta resolved esperado segun el dataset actual.",
+    );
+    assertIncludes(
+      dashboard,
+      expected.averageTimeToClosedHours === null ? "N/D" : `${expected.averageTimeToClosedHours} h`,
+      "El dashboard no mostro el tiempo promedio hasta closed esperado segun el dataset actual.",
+    );
+    assertIncludes(dashboard, "Backlog envejecido por estado", "El dashboard no mostro el desglose de backlog envejecido por estado.");
+    assertIncludes(dashboard, "Backlog envejecido por departamento", "El dashboard no mostro el desglose de backlog envejecido por departamento.");
+
+    for (const item of expected.agedTicketsByStatus) {
+      assertIncludes(dashboard, item.label, `El dashboard no mostro ${item.label} dentro del backlog envejecido por estado.`);
+    }
+
+    for (const item of expected.agedTicketsByDepartment) {
+      assertIncludes(dashboard, item.label, `El dashboard no mostro ${item.label} dentro del backlog envejecido por departamento.`);
+    }
+
+    return "Dashboard supervisor muestra tasa de reapertura, tiempos separados y desglose de backlog envejecido con valores esperados.";
+  });
+
+  await runCheck("QA-AUTO-30", "Exportacion JSON de metricas ampliadas para supervisor", async () => {
+    const adminPb = await createAdminClient();
+    const expected = await computeExpectedDashboardMetrics(adminPb);
+    const supervisorSession = await loginViaApp(users.supervisor.email, users.supervisor.password);
+    const response = await fetch(`${appUrl}/app/supervisor/exports/metrics`, {
+      headers: {
+        cookie: supervisorSession.cookie,
+      },
+    });
+    const json = await response.json();
+
+    assert(response.ok, `La exportacion JSON ampliada devolvio ${response.status}.`);
+    assert(json.reopenedRatePercent === expected.reopenedRatePercent, "La exportacion JSON no devolvio reopenedRatePercent esperado segun el dataset actual.");
+    assert(json.averageTimeToResolvedHours === expected.averageTimeToResolvedHours, "La exportacion JSON no devolvio averageTimeToResolvedHours esperado segun el dataset actual.");
+    assert(json.averageTimeToClosedHours === expected.averageTimeToClosedHours, "La exportacion JSON no devolvio averageTimeToClosedHours esperado segun el dataset actual.");
+    assert(Array.isArray(json.agedTicketsByStatus), "La exportacion JSON no incluyo agedTicketsByStatus como arreglo.");
+    assert(Array.isArray(json.agedTicketsByDepartment), "La exportacion JSON no incluyo agedTicketsByDepartment como arreglo.");
+
+    for (const item of expected.agedTicketsByStatus) {
+      assert(
+        json.agedTicketsByStatus.some((jsonItem) => jsonItem.label === item.label && jsonItem.count === item.count),
+        `La exportacion JSON no devolvio el backlog envejecido esperado para estado ${item.label}.`,
+      );
+    }
+
+    for (const item of expected.agedTicketsByDepartment) {
+      assert(
+        json.agedTicketsByDepartment.some((jsonItem) => jsonItem.label === item.label && jsonItem.count === item.count),
+        `La exportacion JSON no devolvio el backlog envejecido esperado para departamento ${item.label}.`,
+      );
+    }
+
+    return "Supervisor descarga metricas JSON ampliadas con tasa de reapertura, tiempos separados y backlog envejecido desglosado.";
+  });
+
+  await runCheck("QA-AUTO-31", "Dashboard de supervisor con resumen ejecutivo", async () => {
+    const supervisorSession = await loginViaApp(users.supervisor.email, users.supervisor.password);
+    const dashboard = await getPageWithCookie("/app/supervisor/dashboard", supervisorSession.cookie);
+
+    assertIncludes(dashboard, "Resumen ejecutivo", "El dashboard no mostro el bloque de resumen ejecutivo.");
+    assertIncludes(dashboard, "Lectura gerencial del periodo", "El dashboard no mostro el titulo del resumen gerencial.");
+    assertIncludes(dashboard, "Highlights", "El dashboard no mostro la seccion de highlights ejecutivos.");
+    assertIncludes(dashboard, "Focos operativos", "El dashboard no mostro la seccion de focos operativos.");
+    assertIncludes(dashboard, "Descargar resumen gerencial", "El dashboard no mostro el acceso a la descarga gerencial.");
+
+    return "Dashboard supervisor muestra bloque de resumen ejecutivo con highlights, focos operativos y acceso de descarga.";
+  });
+
+  await runCheck("QA-AUTO-32", "Exportacion Markdown de resumen gerencial", async () => {
+    const supervisorSession = await loginViaApp(users.supervisor.email, users.supervisor.password);
+    const { response, text } = await fetchText(`${appUrl}/app/supervisor/exports/summary`, {
+      headers: {
+        cookie: supervisorSession.cookie,
+      },
+    });
+
+    assert(response.ok, `La exportacion Markdown gerencial devolvio ${response.status}.`);
+    assert((response.headers.get("content-type") || "").includes("text/markdown"), "La exportacion gerencial no devolvio Markdown.");
+    assertIncludes(response.headers.get("content-disposition") || "", "managerial-summary", "La exportacion gerencial no devolvio nombre de archivo esperado.");
+    assertIncludes(text, "# Resumen gerencial semanal", "La exportacion gerencial no incluyo el encabezado esperado.");
+    assertIncludes(text, "## Lectura ejecutiva", "La exportacion gerencial no incluyo la lectura ejecutiva.");
+    assertIncludes(text, "## Highlights", "La exportacion gerencial no incluyo highlights.");
+    assertIncludes(text, "## Focos operativos", "La exportacion gerencial no incluyo focos operativos.");
+    assertIncludes(text, "Tasa de reapertura:", "La exportacion gerencial no incluyo el KPI de tasa de reapertura.");
+
+    return "Supervisor descarga resumen gerencial en Markdown con encabezado, KPIs principales, highlights y focos operativos.";
   });
 
   await runCheck("QA-AUTO-08", "Cliente confirma cierre de ticket resuelto", async () => {

@@ -13,9 +13,18 @@ Archivos:
 - `fase-2-cierre.md`
 - `fase-3-cierre.md`
 - `fase-4-cierre.md`
+- `fase-5-cierre.md`
+- `fase-6.1-cierre.md`
+- `fase-6.2-cierre.md`
+- `fase-6.3-cierre.md`
+- `fase-6.4-cierre.md`
+- `fase-6.5-cierre.md`
+- `fase-6-cierre.md`
 - `fase-3-plan.md`
 - `fase-4-plan.md`
 - `fase-5-plan.md`
+- `fase-6-plan.md`
+- `roadmap.md`
 
 Uso recomendado:
 - para entender el estado actual del proyecto,
@@ -23,18 +32,29 @@ Uso recomendado:
 - para cerrar formalmente Fase 2,
 - para cerrar formalmente Fase 3,
 - para cerrar formalmente Fase 4,
+- para cerrar formalmente Fase 5,
+- para cerrar formalmente el bloque 6.1 de Fase 6,
+- para cerrar formalmente el bloque 6.2 de Fase 6,
+- para cerrar formalmente el bloque 6.3 de Fase 6,
+- para cerrar formalmente el bloque 6.4 de Fase 6,
+- para cerrar formalmente el bloque 6.5 de Fase 6,
+- para cerrar formalmente la Fase 6 completa,
+- para entender la evolucion completa del proyecto en un solo roadmap,
 - para arrancar Fase 4 con alcance claro,
-- para planear Fase 5 con foco en reporting y analitica avanzada.
+- para planear Fase 5 con foco en reporting y analitica avanzada,
+- para planear Fase 6 con foco en hardening operativo.
 
 ### 0.1 Operacion y demo
 
 Archivo:
 - `operacion-y-demo.md`
+- `entrega-y-despliegue.md`
 
 Uso recomendado:
 - para levantar el MVP rapido,
 - para ejecutar una demo funcional por rol,
-- para orientar validaciones internas sin contexto adicional.
+- para orientar validaciones internas sin contexto adicional,
+- para preparar la ruta de despliegue y entrega final.
 
 ### 1. Bloque basico de pruebas
 

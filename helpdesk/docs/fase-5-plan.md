@@ -29,6 +29,17 @@ Permitir descargar tickets segun filtros operativos reales.
 - incluir al menos `status`, `priority`, `category` y `q`
 - validar que el archivo descargado refleje exactamente el universo filtrado en pantalla
 
+#### Estado del primer corte
+- implementado en la rama `phase-5-reporting`
+- la exportacion CSV ya respeta `status`, `priority`, `category` y `q`
+- el nombre del archivo refleja contexto minimo de filtros aplicados
+
+#### Estado del segundo corte
+- implementado en la rama `phase-5-reporting`
+- la vista global del supervisor ya expone filtros por `departmentId`, `assignedToId`, `createdFrom` y `createdTo`
+- la exportacion CSV ya respeta esos filtros adicionales y conserva nombre de archivo con contexto minimo
+- validacion objetivo del bloque: el CSV debe reflejar el mismo universo visible cuando se combinan filtros operativos y rango de fechas
+
 ### 5.2 Metricas operativas ampliadas
 
 #### Objetivo
@@ -49,6 +60,13 @@ Dar mayor profundidad a las metricas del dashboard para lectura de rendimiento y
 - separar tiempo promedio hasta `resolved` y tiempo promedio hasta `closed`
 - mostrar backlog envejecido con mayor detalle por estado o departamento
 
+#### Estado del primer corte
+- implementado en la rama `phase-5-reporting`
+- el dashboard del supervisor ya muestra `tasa de reapertura`
+- el dashboard ya separa `tiempo promedio hasta resolved` y `tiempo promedio hasta closed`
+- el dashboard ya desglosa backlog envejecido por `estado` y por `departamento`
+- la exportacion JSON de metricas ya expone estos nuevos campos para consumo externo
+
 ### 5.3 Analitica resumida para seguimiento gerencial
 
 #### Objetivo
@@ -68,6 +86,12 @@ Ofrecer una vista mas ejecutiva sin salir del sistema.
 - resumir KPIs principales con texto claro y comparables entre si
 - priorizar legibilidad y utilidad antes que visualizacion compleja
 
+#### Estado del primer corte
+- implementado en la rama `phase-5-reporting`
+- el dashboard del supervisor ya muestra un bloque de `Resumen ejecutivo`
+- existe una descarga `Descargar resumen gerencial` en formato Markdown
+- el resumen reutiliza los KPIs ampliados de 5.2 para highlights y focos operativos
+
 ## Bloques ejecutables sugeridos
 
 ### Bloque 5.1. Exportacion filtrada
@@ -77,8 +101,17 @@ Hacer que la exportacion de tickets sea util para trabajo operativo real, respet
 
 #### Alcance minimo
 - exportacion CSV usando filtros de `status`, `priority`, `category` y `q`
+- extension de filtros por `departmentId`, `assignedToId`, `createdFrom` y `createdTo`
 - nombre de archivo mas descriptivo
 - validacion automatica y manual del universo exportado
+
+#### Casos QA del bloque
+- `QA-35`: exportacion CSV filtrada de tickets con filtros operativos activos
+- `QA-36`: exportacion CSV filtrada con `departmentId`, `assignedToId` y rango de fechas
+
+#### Cobertura automatizada esperada
+- `QA-AUTO-27`: exportacion CSV filtrada con `status`, `priority` y `q`
+- `QA-AUTO-28`: exportacion CSV filtrada con `departmentId`, `assignedToId`, `createdFrom` y `createdTo`
 
 ### Bloque 5.2. KPIs ampliados del dashboard
 
@@ -91,6 +124,14 @@ Profundizar el dashboard actual con metricas que ayuden a detectar calidad de at
 - tiempo promedio hasta `closed`
 - mayor contexto de tickets envejecidos
 
+#### Casos QA del bloque
+- `QA-37`: dashboard supervisor muestra KPIs ampliados de reapertura y tiempos separados
+- `QA-38`: exportacion JSON de metricas incluye KPIs ampliados y desglose de backlog envejecido
+
+#### Cobertura automatizada esperada
+- `QA-AUTO-29`: dashboard supervisor muestra KPIs ampliados con valores esperados del dataset bootstrap
+- `QA-AUTO-30`: exportacion JSON de metricas incluye `reopenedRatePercent`, tiempos separados y desgloses de backlog envejecido
+
 ### Bloque 5.3. Salida gerencial resumida
 
 #### Objetivo
@@ -100,6 +141,14 @@ Entregar una vista o descarga resumida para seguimiento ejecutivo semanal.
 - resumen descargable de KPIs principales
 - bloque visual resumido en dashboard
 - lenguaje orientado a toma de decision y no solo a volumen crudo
+
+#### Casos QA del bloque
+- `QA-39`: dashboard supervisor muestra bloque visual de resumen ejecutivo
+- `QA-40`: descarga gerencial en Markdown resume KPIs y focos operativos
+
+#### Cobertura automatizada esperada
+- `QA-AUTO-31`: dashboard supervisor muestra bloque de resumen ejecutivo y acceso a descarga gerencial
+- `QA-AUTO-32`: exportacion Markdown gerencial devuelve resumen ejecutivo, highlights y focos operativos
 
 ## Fuera de alcance de Fase 5
 

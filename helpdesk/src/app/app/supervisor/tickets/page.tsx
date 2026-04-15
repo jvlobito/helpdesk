@@ -2,11 +2,16 @@ import Link from "next/link";
 
 import { TicketListFilters } from "@/components/tickets/ticket-list-filters";
 import { TicketPagination } from "@/components/tickets/ticket-pagination";
-import { listSupervisorTickets } from "@/lib/helpdesk-server";
+import { requireRoleSession } from "@/lib/auth-server";
+import { listDepartments, listInternalUsers, listSupervisorTickets } from "@/lib/helpdesk-server";
 
 type SupervisorTicketsPageProps = {
   searchParams: Promise<{
+    assignedToId?: string;
     category?: string;
+    createdFrom?: string;
+    createdTo?: string;
+    departmentId?: string;
     page?: string;
     priority?: string;
     q?: string;
@@ -15,14 +20,27 @@ type SupervisorTicketsPageProps = {
 };
 
 export default async function SupervisorTicketsPage({ searchParams }: SupervisorTicketsPageProps) {
+  await requireRoleSession("supervisor");
   const filters = await searchParams;
-  const tickets = await listSupervisorTickets({
-    category: filters.category,
-    page: filters.page ? Number.parseInt(filters.page, 10) : 1,
-    priority: filters.priority,
-    q: filters.q,
-    status: filters.status,
-  });
+  const [departments, internalUsers, tickets] = await Promise.all([
+    listDepartments(),
+    listInternalUsers(),
+    listSupervisorTickets({
+      assignedToId: filters.assignedToId,
+      category: filters.category,
+      createdFrom: filters.createdFrom,
+      createdTo: filters.createdTo,
+      departmentId: filters.departmentId,
+      page: filters.page ? Number.parseInt(filters.page, 10) : 1,
+      priority: filters.priority,
+      q: filters.q,
+      status: filters.status,
+    }),
+  ]);
+  const departmentOptions = departments.map((department) => ({ id: department.id, label: department.name }));
+  const assignedToOptions = internalUsers
+    .filter((user) => user.role === "agente")
+    .map((user) => ({ id: user.id, label: `${user.name} (${user.email})` }));
 
   return (
     <main className="space-y-6">
@@ -32,9 +50,34 @@ export default async function SupervisorTicketsPage({ searchParams }: Supervisor
         <p className="mt-3 text-sm leading-6 text-slate-400">
           Vista global de tickets para supervision operativa del MVP actual.
         </p>
+        <div className="mt-4 flex flex-wrap gap-3 text-sm">
+          <Link
+            href={{
+              pathname: "/app/supervisor/exports/tickets",
+              query: {
+                ...(filters.assignedToId ? { assignedToId: filters.assignedToId } : {}),
+                ...(filters.category ? { category: filters.category } : {}),
+                ...(filters.createdFrom ? { createdFrom: filters.createdFrom } : {}),
+                ...(filters.createdTo ? { createdTo: filters.createdTo } : {}),
+                ...(filters.departmentId ? { departmentId: filters.departmentId } : {}),
+                ...(filters.priority ? { priority: filters.priority } : {}),
+                ...(filters.q ? { q: filters.q } : {}),
+                ...(filters.status ? { status: filters.status } : {}),
+              },
+            }}
+            className="rounded-xl border border-white/10 px-4 py-2 text-slate-100 transition hover:bg-white/5"
+          >
+            Exportar CSV filtrado
+          </Link>
+        </div>
       </div>
 
-      <TicketListFilters basePath="/app/supervisor/tickets" filters={filters} />
+      <TicketListFilters
+        assignedToOptions={assignedToOptions}
+        basePath="/app/supervisor/tickets"
+        departmentOptions={departmentOptions}
+        filters={filters}
+      />
 
       <p className="text-xs text-slate-500 sm:hidden">Desliza horizontalmente la tabla si necesitas ver todas las columnas.</p>
 

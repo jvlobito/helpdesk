@@ -33,6 +33,11 @@ La fase dejo operativa la base tecnica del MVP con autenticacion real, sesion pe
 
 ## Evidencias de validacion
 
+### Tecnica
+
+- `npm run lint` OK
+- `npm run build` OK
+
 ### Validacion manual
 
 - `docs/fase-1-validacion-manual.md`
@@ -43,14 +48,28 @@ La fase dejo operativa la base tecnica del MVP con autenticacion real, sesion pe
 
 - `npm run qa:verify`
 - reportes en `docs/reports/`
+- `docs/reports/qa-verify-latest.md`
 
 Cobertura automatizada relevante para alcance base:
-- health endpoint
-- login por rol
-- acceso a vistas protegidas clave
-- creacion real de ticket y visibilidad
-- comentario interno/publico segun rol
-- guardrails de acceso por URL para cliente y agente
+- `QA-AUTO-01`: health endpoint
+- `QA-AUTO-02`: login cliente y acceso a `/app/tickets`
+- `QA-AUTO-03`: login agente y acceso a `/app/agent/tickets`
+- `QA-AUTO-04`: login supervisor y acceso a dashboard
+- `QA-AUTO-05`: creacion real de ticket y visibilidad base
+- `QA-AUTO-06`: comentario interno/publico segun rol
+- `QA-AUTO-06A`: guardrail de acceso por URL para cliente
+- `QA-AUTO-06E`: guardrail de acceso por URL para agente
+
+### Casos QA manuales mas representativos de la fase
+
+- `QA-01`, `QA-02`, `QA-03`: login por rol
+- `QA-04`, `QA-05`: creacion y validacion base de ticket
+- `QA-06`: filtros base de tickets del cliente
+- `QA-07`: comentario publico del cliente
+- `QA-08`, `QA-09`, `QA-10`: toma, cambio de estado y reasignacion operativa
+- `QA-11`: comentario interno
+- `QA-12`, `QA-13`: gestion y validacion de departamentos
+- `QA-15`: acceso al dashboard supervisor
 
 ## Criterios de salida revisados
 

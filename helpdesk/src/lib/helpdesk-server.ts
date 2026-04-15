@@ -79,7 +79,11 @@ export type TicketHistoryView = {
 };
 
 export type TicketListFilters = {
+  assignedToId?: string;
   category?: string;
+  createdFrom?: string;
+  createdTo?: string;
+  departmentId?: string;
   page?: number;
   priority?: string;
   q?: string;
@@ -122,6 +126,23 @@ export type InternalUserView = {
   role: UserRole;
 };
 
+export type DashboardBreakdownView = {
+  count: number;
+  label: string;
+};
+
+export type DashboardMetricCountView = {
+  count: number;
+  label: string;
+};
+
+export type ManagerialSummaryView = {
+  executiveHeadline: string;
+  generatedAt: string;
+  highlights: string[];
+  operationalFocus: string[];
+};
+
 function asString(value: unknown) {
   return typeof value === "string" ? value : "";
 }
@@ -143,8 +164,20 @@ function escapeFilterValue(value: string) {
   return value.replaceAll('"', '\\"');
 }
 
+function formatPocketBaseDateTime(value: Date) {
+  return value.toISOString().replace("T", " ");
+}
+
 function buildTicketFilter(filters: TicketListFilters) {
   const conditions: string[] = [];
+
+  if (filters.departmentId) {
+    conditions.push(`department_id = "${escapeFilterValue(filters.departmentId)}"`);
+  }
+
+  if (filters.assignedToId) {
+    conditions.push(`assigned_to = "${escapeFilterValue(filters.assignedToId)}"`);
+  }
 
   if (filters.status) {
     conditions.push(`status = "${escapeFilterValue(filters.status)}"`);
@@ -163,11 +196,62 @@ function buildTicketFilter(filters: TicketListFilters) {
     conditions.push(`(title ~ "${safeQuery}" || description ~ "${safeQuery}" || ticket_number ~ "${safeQuery}")`);
   }
 
+  if (filters.createdFrom) {
+    const start = new Date(`${filters.createdFrom}T00:00:00.000Z`);
+
+    if (!Number.isNaN(start.getTime())) {
+      conditions.push(`created_at >= "${formatPocketBaseDateTime(start)}"`);
+    }
+  }
+
+  if (filters.createdTo) {
+    const end = new Date(`${filters.createdTo}T23:59:59.999Z`);
+
+    if (!Number.isNaN(end.getTime())) {
+      conditions.push(`created_at <= "${formatPocketBaseDateTime(end)}"`);
+    }
+  }
+
   return conditions.join(" && ");
 }
 
 function getNormalizedPage(page?: number) {
   return !page || Number.isNaN(page) || page < 1 ? 1 : page;
+}
+
+function calculateAverageHours(tickets: TicketView[], getEndTimestamp: (ticket: TicketView) => string | undefined) {
+  const durations = tickets
+    .map((ticket) => {
+      const createdAt = Date.parse(ticket.createdAt);
+      const endAt = Date.parse(getEndTimestamp(ticket) ?? "");
+
+      if (Number.isNaN(createdAt) || Number.isNaN(endAt) || endAt < createdAt) {
+        return null;
+      }
+
+      return (endAt - createdAt) / (1000 * 60 * 60);
+    })
+    .filter((duration): duration is number => duration !== null);
+
+  if (durations.length === 0) {
+    return null;
+  }
+
+  return Number((durations.reduce((sum, duration) => sum + duration, 0) / durations.length).toFixed(1));
+}
+
+function buildBreakdown(labels: string[], getCount: (label: string) => number) {
+  return labels
+    .map((label) => ({ count: getCount(label), label }))
+    .filter((item) => item.count > 0) satisfies DashboardBreakdownView[];
+}
+
+function buildMetricCounts<T extends string>(labels: T[], getCount: (label: T) => number) {
+  return labels.map((label) => ({ count: getCount(label), label })) satisfies DashboardMetricCountView[];
+}
+
+function formatHoursForSummary(value: number | null) {
+  return value === null ? "N/D" : `${value} h`;
 }
 
 function paginateTickets(items: TicketView[], page = 1, pageSize = 10): TicketListResult {
@@ -184,6 +268,16 @@ function paginateTickets(items: TicketView[], page = 1, pageSize = 10): TicketLi
     totalItems,
     totalPages,
   };
+}
+
+function mapPaginatedTickets(records: { items: RecordModel[]; page: number; perPage: number; totalItems: number; totalPages: number }) {
+  return {
+    items: records.items.map((record) => mapTicket(record as ExpandedRecord)),
+    page: records.page,
+    pageSize: records.perPage,
+    totalItems: records.totalItems,
+    totalPages: records.totalPages,
+  } satisfies TicketListResult;
 }
 
 function getExpandedRecord(expanded: Record<string, RecordModel | null | undefined> | undefined, key: string) {
@@ -310,13 +404,14 @@ export async function listActiveDepartments() {
 export async function listCustomerTickets(userId: string, filters: TicketListFilters = {}) {
   const pb = await getServerPocketBase();
   const extraFilter = buildTicketFilter(filters);
-  const records = await pb.collection("tickets").getFullList({
+  const page = getNormalizedPage(filters.page);
+  const records = await pb.collection("tickets").getList(page, 10, {
     expand: "department_id,created_by,assigned_to",
     filter: extraFilter ? `created_by = "${userId}" && ${extraFilter}` : `created_by = "${userId}"`,
     sort: "-updated_at",
   });
 
-  return paginateTickets(records.map((record) => mapTicket(record as ExpandedRecord)), filters.page);
+  return mapPaginatedTickets(records);
 }
 
 export async function listAgentTickets(session: AuthSession, filters: TicketListFilters = {}) {
@@ -329,31 +424,34 @@ export async function listAgentTickets(session: AuthSession, filters: TicketList
 
   const extraFilter = buildTicketFilter(filters);
   const roleFilter = `(${roleFilters.join(" || ")})`;
+  const page = getNormalizedPage(filters.page);
 
-  const records = await pb.collection("tickets").getFullList({
+  const records = await pb.collection("tickets").getList(page, 10, {
     expand: "department_id,created_by,assigned_to",
     filter: extraFilter ? `${roleFilter} && ${extraFilter}` : roleFilter,
     sort: "-updated_at",
   });
 
-  return paginateTickets(records.map((record) => mapTicket(record as ExpandedRecord)), filters.page);
+  return mapPaginatedTickets(records);
 }
 
 export async function listSupervisorTickets(filters: TicketListFilters = {}) {
   const pb = await getServerPocketBase();
   const extraFilter = buildTicketFilter(filters);
-  const records = await pb.collection("tickets").getFullList({
+  const page = getNormalizedPage(filters.page);
+  const records = await pb.collection("tickets").getList(page, 10, {
     expand: "department_id,created_by,assigned_to",
     filter: extraFilter,
     sort: "-updated_at",
   });
 
-  return paginateTickets(records.map((record) => mapTicket(record as ExpandedRecord)), filters.page);
+  return mapPaginatedTickets(records);
 }
 
 export async function listAllSupervisorTickets(filters: TicketListFilters = {}) {
   const pb = await getServerPocketBase();
   const extraFilter = buildTicketFilter(filters);
+  // Keep this full-list path for export and dashboard aggregates only.
   const records = await pb.collection("tickets").getFullList({
     expand: "department_id,created_by,assigned_to",
     filter: extraFilter,
@@ -477,12 +575,85 @@ export async function getSupervisorDashboardData() {
   ]);
   const now = Date.now();
   const agedThreshold = 7 * 24 * 60 * 60 * 1000;
+  const ticketStatuses: TicketStatus[] = ["new", "in_progress", "waiting", "resolved", "reopened", "closed"];
+  const ticketPriorities: TicketPriority[] = ["low", "medium", "high", "critical"];
   const departmentMap = new Map(departments.map((department) => [department.id, department.name]));
+  const assignedCountByAgentId = new Map<string, number>();
+  const openCountByAgentId = new Map<string, number>();
+  const resolvedCountByAgentId = new Map<string, number>();
+  const statusCountMap = new Map<string, number>();
+  const priorityCountMap = new Map<string, number>();
+  const departmentCountMap = new Map<string, number>();
+  const agedStatusCountMap = new Map<string, number>();
+  const agedDepartmentCountMap = new Map<string, number>();
+  const resolvedTickets: TicketView[] = [];
+  const closedTickets: TicketView[] = [];
+  const agedTickets: TicketView[] = [];
+  let activeAgents = 0;
+  let criticalTickets = 0;
+  let openTickets = 0;
+  let reopenedTicketsCount = 0;
+  let unassignedTickets = 0;
+
+  for (const ticket of ticketItems) {
+    statusCountMap.set(ticket.status, (statusCountMap.get(ticket.status) ?? 0) + 1);
+    priorityCountMap.set(ticket.priority, (priorityCountMap.get(ticket.priority) ?? 0) + 1);
+    departmentCountMap.set(ticket.departmentId, (departmentCountMap.get(ticket.departmentId) ?? 0) + 1);
+
+    if (ticket.assignedToId) {
+      assignedCountByAgentId.set(ticket.assignedToId, (assignedCountByAgentId.get(ticket.assignedToId) ?? 0) + 1);
+    } else {
+      unassignedTickets += 1;
+    }
+
+    if (ticket.status !== "closed") {
+      openTickets += 1;
+
+      if (ticket.assignedToId) {
+        openCountByAgentId.set(ticket.assignedToId, (openCountByAgentId.get(ticket.assignedToId) ?? 0) + 1);
+      }
+    }
+
+    if (ticket.status === "resolved" || ticket.status === "closed") {
+      if (ticket.assignedToId) {
+        resolvedCountByAgentId.set(ticket.assignedToId, (resolvedCountByAgentId.get(ticket.assignedToId) ?? 0) + 1);
+      }
+    }
+
+    if (ticket.status === "reopened") {
+      reopenedTicketsCount += 1;
+    }
+
+    if (typeof ticket.resolvedAt === "string" && ticket.resolvedAt.length > 0) {
+      resolvedTickets.push(ticket);
+    }
+
+    if (typeof ticket.closeReason === "string") {
+      closedTickets.push(ticket);
+    }
+
+    if (ticket.priority === "critical") {
+      criticalTickets += 1;
+    }
+
+    const createdAt = Date.parse(ticket.createdAt);
+
+    if (!Number.isNaN(createdAt) && now - createdAt > agedThreshold && ticket.status !== "closed") {
+      agedTickets.push(ticket);
+      agedStatusCountMap.set(ticket.status, (agedStatusCountMap.get(ticket.status) ?? 0) + 1);
+      agedDepartmentCountMap.set(ticket.departmentName, (agedDepartmentCountMap.get(ticket.departmentName) ?? 0) + 1);
+    }
+  }
+
   const agentWorkload = agents.map((agent) => {
-    const assignedTickets = ticketItems.filter((ticket) => ticket.assignedToId === agent.id);
+    const openCount = openCountByAgentId.get(agent.id) ?? 0;
+
+    if (openCount > 0) {
+      activeAgents += 1;
+    }
 
     return {
-      assignedCount: assignedTickets.length,
+      assignedCount: assignedCountByAgentId.get(agent.id) ?? 0,
       departmentName: departmentMap.get(asString(agent.department_id)) ?? "Sin departamento",
       email: asString(agent.email),
       id: agent.id,
@@ -496,43 +667,71 @@ export async function getSupervisorDashboardData() {
           lastName: asString(agent.last_name),
           role: "agente",
         }) || asString(agent.email),
-      openCount: assignedTickets.filter((ticket) => ticket.status !== "closed").length,
-      resolvedCount: assignedTickets.filter((ticket) => ticket.status === "resolved" || ticket.status === "closed").length,
+      openCount,
+      resolvedCount: resolvedCountByAgentId.get(agent.id) ?? 0,
     } satisfies AgentWorkloadView;
   });
-  const closedTickets = ticketItems.filter((ticket) => ticket.status === "closed");
-  const averageResolutionHours =
-    closedTickets.length === 0
-      ? null
-      : Number(
-          (
-            closedTickets.reduce((sum, ticket) => {
-              const createdAt = Date.parse(ticket.createdAt);
-              const closedAt = Date.parse(ticket.updatedAt);
-
-              if (Number.isNaN(createdAt) || Number.isNaN(closedAt) || closedAt < createdAt) {
-                return sum;
-              }
-
-              return sum + (closedAt - createdAt) / (1000 * 60 * 60);
-            }, 0) / closedTickets.length
-          ).toFixed(1),
-        );
+  const statusCounts = buildMetricCounts(ticketStatuses, (status) => statusCountMap.get(status) ?? 0);
+  const priorityCounts = buildMetricCounts(ticketPriorities, (priority) => priorityCountMap.get(priority) ?? 0);
+  const departmentCounts = departments.map((department) => ({
+    count: departmentCountMap.get(department.id) ?? 0,
+    label: department.name,
+  })) satisfies DashboardMetricCountView[];
+  const averageTimeToResolvedHours = calculateAverageHours(resolvedTickets, (ticket) => ticket.resolvedAt);
+  const averageTimeToClosedHours = calculateAverageHours(closedTickets, (ticket) => ticket.updatedAt);
+  const agedTicketsByStatus = buildBreakdown(ticketStatuses, (status) => agedStatusCountMap.get(status) ?? 0);
+  const agedTicketsByDepartment = buildBreakdown(
+    departments.map((department) => department.name),
+    (departmentName) => agedDepartmentCountMap.get(departmentName) ?? 0,
+  );
+  const mostLoadedAgent = [...agentWorkload].sort((left, right) => right.openCount - left.openCount)[0];
+  const topAgedStatus = [...agedTicketsByStatus].sort((left, right) => right.count - left.count)[0];
+  const topAgedDepartment = [...agedTicketsByDepartment].sort((left, right) => right.count - left.count)[0];
+  const reopenedRatePercent = ticketItems.length === 0 ? 0 : Number(((reopenedTicketsCount / ticketItems.length) * 100).toFixed(1));
+  const managerialSummary: ManagerialSummaryView = {
+    executiveHeadline:
+      agedTickets.length > 0 || reopenedRatePercent > 0 || criticalTickets > 0
+        ? "Se recomienda seguimiento ejecutivo del backlog, la asignacion y la reincidencia actual."
+        : "La operacion se mantiene estable y sin alertas ejecutivas inmediatas.",
+    generatedAt: new Date().toISOString(),
+    highlights: [
+      `Backlog abierto actual: ${openTickets} tickets, ${criticalTickets} criticos y ${unassignedTickets} sin asignar.`,
+      `Calidad operativa: tasa de reapertura ${reopenedRatePercent}% , tiempo promedio hasta resolved ${formatHoursForSummary(averageTimeToResolvedHours)} y hasta closed ${formatHoursForSummary(averageTimeToClosedHours)}.`,
+      `Capacidad actual: ${activeAgents} agentes con carga activa${mostLoadedAgent && mostLoadedAgent.openCount > 0 ? `; mayor carga abierta en ${mostLoadedAgent.name} con ${mostLoadedAgent.openCount} tickets.` : "."}`,
+    ],
+    operationalFocus: [
+      agedTickets.length > 0
+        ? `Backlog envejecido: ${agedTickets.length} tickets con mas de 7 dias${topAgedDepartment ? `; mayor concentracion en ${topAgedDepartment.label}` : ""}${topAgedStatus ? ` y estado ${topAgedStatus.label}` : ""}.`
+        : "Backlog envejecido: no hay tickets con mas de 7 dias abiertos en este momento.",
+      unassignedTickets > 0
+        ? `Asignacion pendiente: ${unassignedTickets} tickets siguen sin responsable asignado.`
+        : "Asignacion pendiente: no hay tickets sin responsable asignado.",
+      criticalTickets > 0
+        ? `Prioridad critica: ${criticalTickets} tickets requieren seguimiento ejecutivo cercano.`
+        : "Prioridad critica: no hay tickets criticos activos.",
+    ],
+  };
 
   return {
     agentWorkload,
-    agedTickets: ticketItems.filter((ticket) => {
-      const createdAt = Date.parse(ticket.createdAt);
-      return !Number.isNaN(createdAt) && now - createdAt > agedThreshold && ticket.status !== "closed";
-    }),
-    averageResolutionHours,
+    agedTickets,
+    agedTicketsByDepartment,
+    agedTicketsByStatus,
+    averageResolutionHours: averageTimeToClosedHours,
+    averageTimeToClosedHours,
+    averageTimeToResolvedHours,
     counts: {
-      criticalTickets: ticketItems.filter((ticket) => ticket.priority === "critical").length,
-      openTickets: ticketItems.filter((ticket) => ticket.status !== "closed").length,
+      criticalTickets,
+      openTickets,
       totalTickets: ticketItems.length,
-      unassignedTickets: ticketItems.filter((ticket) => !ticket.assignedToId).length,
+      unassignedTickets,
     },
+    departmentCounts,
     departments,
+    managerialSummary,
+    priorityCounts,
+    reopenedRatePercent,
+    statusCounts,
     tickets: paginateTickets(ticketItems),
   };
 }

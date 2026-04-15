@@ -531,6 +531,100 @@ async function ensureCollections() {
       return collection;
     });
   }
+
+  try {
+    const existingJobRuns = await pb.collections.getOne("job_runs");
+    existingJobRuns.listRule = '@request.auth.role = "supervisor"';
+    existingJobRuns.viewRule = '@request.auth.role = "supervisor"';
+    existingJobRuns.createRule = '@request.auth.role = "supervisor"';
+    existingJobRuns.updateRule = '@request.auth.role = "supervisor"';
+    existingJobRuns.deleteRule = '@request.auth.role = "supervisor"';
+    existingJobRuns.fields = mergeFields(existingJobRuns.fields, [
+      textField("job_name", { required: true, max: 80 }),
+      selectField("trigger_source", ["manual", "scheduler", "qa"], { required: true }),
+      selectField("status", ["running", "success", "partial_failure", "failed", "skipped"], { required: true }),
+      boolField("dry_run"),
+      numberField("close_after_hours", { min: 0 }),
+      numberField("candidate_count", { min: 0 }),
+      numberField("processed_count", { min: 0 }),
+      numberField("closed_count", { min: 0 }),
+      numberField("skipped_count", { min: 0 }),
+      numberField("error_count", { min: 0 }),
+      textField("cutoff_at"),
+      textField("error_summary", { max: 1000 }),
+      dateField("started_at", { required: true }),
+      dateField("finished_at"),
+    ]);
+    await pb.collections.update(existingJobRuns.id, existingJobRuns);
+  } catch {
+    await upsertCollectionByName("job_runs", () => {
+      const collection = clone(scaffolds.base);
+      collection.name = "job_runs";
+      collection.listRule = '@request.auth.role = "supervisor"';
+      collection.viewRule = '@request.auth.role = "supervisor"';
+      collection.createRule = '@request.auth.role = "supervisor"';
+      collection.updateRule = '@request.auth.role = "supervisor"';
+      collection.deleteRule = '@request.auth.role = "supervisor"';
+      collection.fields = [
+        ...removeSystemFields(collection.fields),
+        textField("job_name", { required: true, max: 80 }),
+        selectField("trigger_source", ["manual", "scheduler", "qa"], { required: true }),
+        selectField("status", ["running", "success", "partial_failure", "failed", "skipped"], { required: true }),
+        boolField("dry_run"),
+        numberField("close_after_hours", { min: 0 }),
+        numberField("candidate_count", { min: 0 }),
+        numberField("processed_count", { min: 0 }),
+        numberField("closed_count", { min: 0 }),
+        numberField("skipped_count", { min: 0 }),
+        numberField("error_count", { min: 0 }),
+        textField("cutoff_at"),
+        textField("error_summary", { max: 1000 }),
+        dateField("started_at", { required: true }),
+        dateField("finished_at"),
+      ];
+      return collection;
+    });
+  }
+
+  try {
+    const existingJobLocks = await pb.collections.getOne("job_locks");
+    existingJobLocks.listRule = '@request.auth.role = "supervisor"';
+    existingJobLocks.viewRule = '@request.auth.role = "supervisor"';
+    existingJobLocks.createRule = '@request.auth.role = "supervisor"';
+    existingJobLocks.updateRule = '@request.auth.role = "supervisor"';
+    existingJobLocks.deleteRule = '@request.auth.role = "supervisor"';
+    existingJobLocks.fields = mergeFields(existingJobLocks.fields, [
+      textField("job_name", { required: true, max: 80 }),
+      textField("locked_by", { required: true, max: 120 }),
+      dateField("locked_at", { required: true }),
+      dateField("lock_expires_at", { required: true }),
+    ]);
+    existingJobLocks.indexes = [
+      "CREATE UNIQUE INDEX idx_job_locks_job_name ON job_locks (job_name)",
+    ];
+    await pb.collections.update(existingJobLocks.id, existingJobLocks);
+  } catch {
+    await upsertCollectionByName("job_locks", () => {
+      const collection = clone(scaffolds.base);
+      collection.name = "job_locks";
+      collection.listRule = '@request.auth.role = "supervisor"';
+      collection.viewRule = '@request.auth.role = "supervisor"';
+      collection.createRule = '@request.auth.role = "supervisor"';
+      collection.updateRule = '@request.auth.role = "supervisor"';
+      collection.deleteRule = '@request.auth.role = "supervisor"';
+      collection.fields = [
+        ...removeSystemFields(collection.fields),
+        textField("job_name", { required: true, max: 80 }),
+        textField("locked_by", { required: true, max: 120 }),
+        dateField("locked_at", { required: true }),
+        dateField("lock_expires_at", { required: true }),
+      ];
+      collection.indexes = [
+        "CREATE UNIQUE INDEX idx_job_locks_job_name ON job_locks (job_name)",
+      ];
+      return collection;
+    });
+  }
 }
 
 async function seedData() {

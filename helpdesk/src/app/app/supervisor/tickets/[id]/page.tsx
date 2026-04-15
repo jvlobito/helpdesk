@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import { CommentForm } from "@/components/tickets/comment-form";
 import { TicketWorkflowForm } from "@/components/tickets/ticket-workflow-form";
-import { requireAuthSession } from "@/lib/auth-server";
+import { requireRoleSession } from "@/lib/auth-server";
 import { closeReasonLabels, reopenReasonLabels } from "@/lib/helpdesk";
 import {
   formatMaybeDate,
@@ -18,7 +18,7 @@ type SupervisorTicketDetailPageProps = {
 
 export default async function SupervisorTicketDetailPage({ params }: SupervisorTicketDetailPageProps) {
   const { id } = await params;
-  const session = await requireAuthSession();
+  const session = await requireRoleSession("supervisor");
   const ticket = await getTicketById(id);
 
   if (!ticket) {

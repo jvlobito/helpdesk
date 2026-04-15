@@ -45,6 +45,7 @@ npm run qa:verify
 - respuesta del cliente para cierre o reapertura de ticket resuelto
 - exportacion CSV de tickets para supervisor
 - exportacion JSON de metricas para supervisor
+- exportacion CSV filtrada desde la vista global de supervisor
 
 ## Cobertura por fase
 
@@ -92,6 +93,13 @@ Cobertura automatizada actual:
 - bloque 4.5 exportacion y analitica operativa ligera
   - exportacion CSV de tickets
   - exportacion JSON de metricas del dashboard
+
+### Fase 5
+
+Cobertura automatizada actual:
+
+- bloque 5.1 exportacion filtrada
+  - exportacion CSV respetando filtros activos de supervisor
 
 Cobertura automatizada pendiente:
 

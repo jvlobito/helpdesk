@@ -14,6 +14,12 @@ export async function markNotificationReadAction(formData: FormData) {
   }
 
   const client = buildAuthedPocketBase(session);
+  const notification = await client.collection("notifications").getOne(notificationId);
+
+  if (String(notification.user_id ?? "") !== session.user.id) {
+    return;
+  }
+
   await client.collection("notifications").update(notificationId, {
     read: true,
   });

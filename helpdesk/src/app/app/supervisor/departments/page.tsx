@@ -1,7 +1,9 @@
 import { DepartmentForm } from "@/components/departments/department-form";
+import { requireRoleSession } from "@/lib/auth-server";
 import { getDepartmentsWithTicketCounts } from "@/lib/helpdesk-server";
 
 export default async function SupervisorDepartmentsPage() {
+  await requireRoleSession("supervisor");
   const departments = await getDepartmentsWithTicketCounts();
 
   return (

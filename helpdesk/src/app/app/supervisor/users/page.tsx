@@ -1,7 +1,9 @@
 import { InternalUserForm } from "@/components/users/internal-user-form";
+import { requireRoleSession } from "@/lib/auth-server";
 import { listDepartments, listInternalUsers } from "@/lib/helpdesk-server";
 
 export default async function SupervisorUsersPage() {
+  await requireRoleSession("supervisor");
   const [users, departments] = await Promise.all([listInternalUsers(), listDepartments()]);
 
   return (

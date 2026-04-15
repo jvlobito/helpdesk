@@ -7,7 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "pb:backup": "node scripts/pb-backup.mjs",
+    "pb:restore:check": "node scripts/pb-restore-check.mjs",
+    "pb:restore": "node scripts/pb-restore.mjs",
     "tickets:auto-close": "node scripts/auto-close-resolved.mjs",
+    "tickets:auto-close:last-run": "node scripts/inspect-auto-close-run.mjs",
     "pb:bootstrap": "node scripts/bootstrap-pocketbase.mjs",
     "qa:verify": "node scripts/qa-verify.mjs"
   },

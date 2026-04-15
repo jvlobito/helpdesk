@@ -1,12 +1,27 @@
 import Link from "next/link";
 
 import { SummaryCard } from "@/components/summary-card";
+import { requireRoleSession } from "@/lib/auth-server";
 import { getSupervisorDashboardData } from "@/lib/helpdesk-server";
 import type { TicketView } from "@/lib/helpdesk-server";
 
 export default async function SupervisorDashboardPage() {
-  const { agentWorkload, agedTickets, averageResolutionHours, counts, departments, tickets } = await getSupervisorDashboardData();
-  const ticketItems = tickets.items;
+  await requireRoleSession("supervisor");
+  const {
+    agentWorkload,
+    agedTickets,
+    agedTicketsByDepartment,
+    agedTicketsByStatus,
+    averageTimeToClosedHours,
+    averageTimeToResolvedHours,
+    counts,
+    departmentCounts,
+    departments,
+    managerialSummary,
+    priorityCounts,
+    reopenedRatePercent,
+    statusCounts,
+  } = await getSupervisorDashboardData();
 
   return (
     <main className="space-y-6">
@@ -23,8 +38,42 @@ export default async function SupervisorDashboardPage() {
           <Link href="/app/supervisor/exports/metrics" className="rounded-xl border border-white/10 px-4 py-2 text-slate-100 transition hover:bg-white/5">
             Descargar metricas JSON
           </Link>
+          <Link href="/app/supervisor/exports/summary" className="rounded-xl border border-white/10 px-4 py-2 text-slate-100 transition hover:bg-white/5">
+            Descargar resumen gerencial
+          </Link>
         </div>
       </div>
+
+      <section className="rounded-3xl border border-emerald-400/20 bg-card p-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="text-sm font-medium text-emerald-300">Resumen ejecutivo</p>
+            <h3 className="mt-2 text-2xl font-semibold text-white">Lectura gerencial del periodo</h3>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">{managerialSummary.executiveHeadline}</p>
+          </div>
+          <p className="text-xs text-slate-500">Generado: {new Date(managerialSummary.generatedAt).toLocaleString("es-MX")}</p>
+        </div>
+
+        <div className="mt-6 grid gap-6 xl:grid-cols-[1fr_1fr]">
+          <article className="rounded-2xl border border-white/8 bg-slate-950/60 p-5">
+            <h4 className="text-sm font-semibold uppercase tracking-wide text-slate-300">Highlights</h4>
+            <ul className="mt-4 space-y-3 text-sm text-slate-300">
+              {managerialSummary.highlights.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </article>
+
+          <article className="rounded-2xl border border-white/8 bg-slate-950/60 p-5">
+            <h4 className="text-sm font-semibold uppercase tracking-wide text-slate-300">Focos operativos</h4>
+            <ul className="mt-4 space-y-3 text-sm text-slate-300">
+              {managerialSummary.operationalFocus.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </article>
+        </div>
+      </section>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <SummaryCard label="Tickets totales" value={counts.totalTickets} />
@@ -35,10 +84,23 @@ export default async function SupervisorDashboardPage() {
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <SummaryCard
-          label="Tiempo promedio de resolucion"
-          value={averageResolutionHours === null ? "N/D" : `${averageResolutionHours} h`}
+          label="Tiempo promedio hasta resolved"
+          value={averageTimeToResolvedHours === null ? "N/D" : `${averageTimeToResolvedHours} h`}
+          hint="Calculado con tickets que ya alcanzaron estado resolved"
+        />
+        <SummaryCard
+          label="Tiempo promedio hasta closed"
+          value={averageTimeToClosedHours === null ? "N/D" : `${averageTimeToClosedHours} h`}
           hint="Calculado con tickets cerrados del dataset actual"
         />
+        <SummaryCard
+          label="Tasa de reapertura"
+          value={`${reopenedRatePercent}%`}
+          hint="Porcentaje del dataset actual que hoy esta en reopened"
+        />
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-2">
         <SummaryCard
           label="Agentes con carga activa"
           value={agentWorkload.filter((agent) => agent.openCount > 0).length}
@@ -55,10 +117,10 @@ export default async function SupervisorDashboardPage() {
         <article className="rounded-3xl border border-white/10 bg-card p-6">
           <h3 className="text-xl font-semibold text-white">Por estado</h3>
           <ul className="mt-4 space-y-3 text-sm text-slate-300">
-            {["new", "in_progress", "waiting", "resolved", "reopened", "closed"].map((status) => (
-              <li key={status} className="flex items-center justify-between">
-                <span>{status}</span>
-                <span>{ticketItems.filter((ticket) => ticket.status === status).length}</span>
+            {statusCounts.map((item) => (
+              <li key={item.label} className="flex items-center justify-between">
+                <span>{item.label}</span>
+                <span>{item.count}</span>
               </li>
             ))}
           </ul>
@@ -67,10 +129,10 @@ export default async function SupervisorDashboardPage() {
         <article className="rounded-3xl border border-white/10 bg-card p-6">
           <h3 className="text-xl font-semibold text-white">Por prioridad</h3>
           <ul className="mt-4 space-y-3 text-sm text-slate-300">
-            {["low", "medium", "high", "critical"].map((priority) => (
-              <li key={priority} className="flex items-center justify-between">
-                <span>{priority}</span>
-                <span>{ticketItems.filter((ticket) => ticket.priority === priority).length}</span>
+            {priorityCounts.map((item) => (
+              <li key={item.label} className="flex items-center justify-between">
+                <span>{item.label}</span>
+                <span>{item.count}</span>
               </li>
             ))}
           </ul>
@@ -79,10 +141,10 @@ export default async function SupervisorDashboardPage() {
         <article className="rounded-3xl border border-white/10 bg-card p-6">
           <h3 className="text-xl font-semibold text-white">Por departamento</h3>
           <ul className="mt-4 space-y-3 text-sm text-slate-300">
-            {departments.map((department) => (
-              <li key={department.id} className="flex items-center justify-between">
-                <span>{department.name}</span>
-                <span>{ticketItems.filter((ticket) => ticket.departmentId === department.id).length}</span>
+            {departmentCounts.map((item) => (
+              <li key={item.label} className="flex items-center justify-between">
+                <span>{item.label}</span>
+                <span>{item.count}</span>
               </li>
             ))}
           </ul>
@@ -170,6 +232,42 @@ export default async function SupervisorDashboardPage() {
               </div>
             ))}
           </div>
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[1fr_1fr]">
+        <article className="rounded-3xl border border-white/10 bg-card p-6">
+          <h3 className="text-xl font-semibold text-white">Backlog envejecido por estado</h3>
+          <div className="mt-4 space-y-3 text-sm text-slate-300">
+            {agedTicketsByStatus.length === 0 ? (
+              <div className="rounded-2xl border border-white/8 bg-slate-950/60 p-4 text-slate-400">
+                No hay backlog envejecido para desglosar por estado.
+              </div>
+            ) : null}
+            {agedTicketsByStatus.map((item) => (
+              <div key={item.label} className="flex items-center justify-between rounded-2xl border border-white/8 bg-slate-950/60 p-4">
+                <span>{item.label}</span>
+                <span>{item.count}</span>
+              </div>
+            ))}
+          </div>
+        </article>
+
+        <article className="rounded-3xl border border-white/10 bg-card p-6">
+          <h3 className="text-xl font-semibold text-white">Backlog envejecido por departamento</h3>
+          <div className="mt-4 space-y-3 text-sm text-slate-300">
+            {agedTicketsByDepartment.length === 0 ? (
+              <div className="rounded-2xl border border-white/8 bg-slate-950/60 p-4 text-slate-400">
+                No hay backlog envejecido para desglosar por departamento.
+              </div>
+            ) : null}
+            {agedTicketsByDepartment.map((item) => (
+              <div key={item.label} className="flex items-center justify-between rounded-2xl border border-white/8 bg-slate-950/60 p-4">
+                <span>{item.label}</span>
+                <span>{item.count}</span>
+              </div>
+            ))}
+          </div>
+        </article>
       </section>
     </main>
   );

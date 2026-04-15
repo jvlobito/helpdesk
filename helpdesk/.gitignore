@@ -19,6 +19,14 @@
 
 # production
 /build
+/backups
+
+# pocketbase runtime data
+/pocketbase/pb_data
+/pocketbase/pb_migrations
+
+# generated QA reports history
+/docs/reports/qa-verify-*.md
 
 # misc
 .DS_Store
