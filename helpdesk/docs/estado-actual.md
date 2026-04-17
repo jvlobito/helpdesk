@@ -2,13 +2,13 @@
 
 ## Fecha de corte
 
-- 2026-04-11
+- 2026-04-16
 
 ## Corte de sesion
 
-- Punto de corte actual: cierre formal completado hasta `Fase 6`
-- Siguiente paso recomendado al retomar: definir si existe una nueva fase posterior al roadmap actual
-- Ultimo build fresco validado: `http://127.0.0.1:3066`
+- Punto de corte actual: cierre formal completado hasta `Fase 6` y cierre final del bloque post entrega de auth publica
+- Siguiente paso recomendado al retomar: definir si existe una nueva fase posterior al roadmap actual o si solo habra mejoras puntuales post entrega
+- Ultimo build fresco validado: `http://127.0.0.1:3068`
 - Ultimo reporte automatizado valido: `docs/reports/qa-verify-latest.md`
 
 ## Estado general
@@ -134,6 +134,7 @@
 ## Estado posterior a Fase 6
 
 - El roadmap actual del MVP base se considera completo.
+- La mejora post entrega de auth publica y recuperacion de password tambien queda cerrada.
 - No existe aun una `Fase 7` definida dentro del marco documental.
 - Cualquier continuacion requiere decidir si se abre una nueva fase de evolucion del producto.
 
