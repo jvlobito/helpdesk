@@ -87,6 +87,8 @@ Tener una matriz simple y trazable para validar la funcionalidad operativa actua
 | QA-54 | Backup local de PocketBase | Sistema | `pocketbase/pb_data` disponible | Ejecutar `npm run pb:backup` | Se crea respaldo en `backups/pocketbase/` con `manifest.json`, `data.db`, `auxiliary.db` y `storage/` | Alta |
 | QA-55 | Restore check sin mutacion | Sistema | Respaldo existente en `backups/pocketbase/` | Ejecutar `PB_RESTORE_BACKUP_PATH=<ruta> npm run pb:restore:check` | El comando valida estructura del respaldo y no modifica `pocketbase/pb_data` | Alta |
 | QA-56 | Restore protegido contra ejecucion accidental | Sistema | Respaldo existente en `backups/pocketbase/` | Ejecutar `PB_RESTORE_BACKUP_PATH=<ruta> npm run pb:restore` sin `PB_RESTORE_APPLY=1` | El comando no reemplaza `pb_data`, informa modo protegido y no crea snapshot de restore | Alta |
+| QA-57 | Navegacion auth enriquecida | Visitante | App activa | Abrir `/login` y `/register` | Login muestra accesos a registro y recuperacion; register muestra acceso de regreso a login | Media |
+| QA-58 | Solicitud de recuperacion de password | Visitante | Email registrado de cliente | Abrir `/forgot-password` y enviar email existente | El sistema procesa la solicitud con mensaje controlado sin exponer si el correo existe mas alla del flujo definido | Media |
 
 ## Nota de continuidad para Fase 4.6
 

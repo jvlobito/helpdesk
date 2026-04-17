@@ -61,6 +61,8 @@ Relacionar los casos `QA-XX` de la matriz funcional con los checks `QA-AUTO-XX` 
 | QA-54 | QA-AUTO-45 | Completa | `pb:backup` genera respaldo local valido de `pb_data` |
 | QA-55 | QA-AUTO-46 | Completa | `pb:restore:check` valida un respaldo sin mutar datos activos |
 | QA-56 | QA-AUTO-47 | Completa | `pb:restore` no aplica restore sin confirmacion explicita |
+| QA-57 | QA-AUTO-48 | Completa | Login y register exponen enlaces cruzados y acceso a recuperacion |
+| QA-58 | QA-AUTO-49 | Completa | Forgot-password procesa solicitud valida con respuesta controlada |
 
 ## Resumen por fase
 

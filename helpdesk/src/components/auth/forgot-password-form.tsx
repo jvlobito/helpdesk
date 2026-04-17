@@ -2,39 +2,37 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-const loginSchema = z.object({
+const forgotPasswordSchema = z.object({
   email: z.email("Ingresa un email valido."),
-  password: z.string().min(8, "La password debe tener al menos 8 caracteres."),
 });
 
-type LoginFormValues = z.infer<typeof loginSchema>;
+type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
 
-export function LoginForm() {
-  const router = useRouter();
+export function ForgotPasswordForm() {
   const [serverError, setServerError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const {
     formState: { errors },
     handleSubmit,
     register,
-  } = useForm<LoginFormValues>({
+  } = useForm<ForgotPasswordFormValues>({
     defaultValues: {
       email: "",
-      password: "",
     },
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(forgotPasswordSchema),
   });
 
   const onSubmit = handleSubmit((values) => {
     setServerError(null);
+    setSuccessMessage(null);
 
     startTransition(async () => {
-      const response = await fetch("/api/auth/login", {
+      const response = await fetch("/api/auth/forgot-password", {
         body: JSON.stringify(values),
         headers: {
           "Content-Type": "application/json",
@@ -42,17 +40,14 @@ export function LoginForm() {
         method: "POST",
       });
 
-      const payload = (await response.json().catch(() => null)) as
-        | { message?: string; redirectTo?: string }
-        | null;
+      const payload = (await response.json().catch(() => null)) as { message?: string } | null;
 
       if (!response.ok) {
-        setServerError(payload?.message ?? "No fue posible iniciar sesion.");
+        setServerError(payload?.message ?? "No fue posible solicitar la recuperacion.");
         return;
       }
 
-      router.replace(payload?.redirectTo ?? "/app");
-      router.refresh();
+      setSuccessMessage(payload?.message ?? "Solicitud enviada.");
     });
   });
 
@@ -62,29 +57,27 @@ export function LoginForm() {
         <span>Email</span>
         <input
           type="email"
-          placeholder="cliente@empresa.com"
           autoComplete="email"
+          placeholder="cliente@empresa.com"
           className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3"
           {...register("email")}
         />
         {errors.email ? <p className="text-xs text-rose-300">{errors.email.message}</p> : null}
       </label>
 
-      <label className="block space-y-2 text-sm text-slate-300">
-        <span>Password</span>
-        <input
-          type="password"
-          placeholder="••••••••"
-          autoComplete="current-password"
-          className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3"
-          {...register("password")}
-        />
-        {errors.password ? <p className="text-xs text-rose-300">{errors.password.message}</p> : null}
-      </label>
+      <div className="rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-slate-300">
+        Si el correo existe, PocketBase procesara la solicitud de recuperacion con su flujo configurado.
+      </div>
 
       {serverError ? (
         <div className="rounded-xl border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
           {serverError}
+        </div>
+      ) : null}
+
+      {successMessage ? (
+        <div className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">
+          {successMessage}
         </div>
       ) : null}
 
@@ -93,22 +86,14 @@ export function LoginForm() {
         disabled={isPending}
         className="w-full rounded-xl bg-emerald-400 px-4 py-3 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-70"
       >
-        {isPending ? "Ingresando..." : "Continuar"}
+        {isPending ? "Solicitando..." : "Solicitar recuperacion"}
       </button>
 
-      <div className="space-y-2 text-center text-sm text-slate-400">
-        <p>
-          <Link href="/forgot-password" className="text-emerald-300 hover:text-emerald-200">
-            Olvide mi password
-          </Link>
-        </p>
-        <p>
-          No tienes cuenta?{" "}
-          <Link href="/register" className="text-emerald-300 hover:text-emerald-200">
-            Registrate aqui
-          </Link>
-        </p>
-      </div>
+      <p className="text-center text-sm text-slate-400">
+        <Link href="/login" className="text-emerald-300 hover:text-emerald-200">
+          Volver a iniciar sesion
+        </Link>
+      </p>
     </form>
   );
 }

@@ -18,6 +18,18 @@ Tener una guia corta para levantar el MVP, entrar con usuarios de prueba y recor
 - Agente IT 2: `diego.soporte@techsupport.local / ChangeMe123!`
 - Supervisor: `supervisor@techsupport.local / ChangeMe123!`
 
+## Accesos publicos de autenticacion
+
+- `/login`: inicio de sesion
+- `/register`: alta publica de clientes
+- `/forgot-password`: solicitud de recuperacion de password
+
+Notas:
+
+- `login` ya expone acceso directo a registro y recuperacion
+- `register` crea cuentas con rol `cliente` por defecto
+- `forgot-password` dispara la solicitud real de recuperacion contra PocketBase
+
 ## Flujo sugerido de demo
 
 ### 1. Cliente

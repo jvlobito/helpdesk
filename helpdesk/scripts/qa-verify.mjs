@@ -123,6 +123,8 @@ function getRoleForResult(id) {
     "QA-AUTO-45": "Sistema",
     "QA-AUTO-46": "Sistema",
     "QA-AUTO-47": "Sistema",
+    "QA-AUTO-48": "Visitante",
+    "QA-AUTO-49": "Visitante",
   };
 
   return byId[id] ?? "Sistema";
@@ -147,6 +149,28 @@ async function fetchText(url, options = {}) {
   const response = await fetch(url, options);
   const text = await response.text();
   return { response, text };
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function fetchTextWithRetry(url, options = {}, attempts = 3) {
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      return await fetchText(url, options);
+    } catch (error) {
+      lastError = error;
+
+      if (attempt < attempts) {
+        await sleep(300 * attempt);
+      }
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error("fetch failed");
 }
 
 function getCookieValue(setCookieHeader) {
@@ -1640,6 +1664,42 @@ async function main() {
     );
 
     return "El restore de PocketBase no se aplica accidentalmente sin PB_RESTORE_APPLY=1.";
+  });
+
+  await runCheck("QA-AUTO-48", "Navegacion auth enriquecida", async () => {
+    const loginResult = await fetchTextWithRetry(`${appUrl}/login`);
+    const registerResult = await fetchTextWithRetry(`${appUrl}/register`);
+    const forgotPasswordResult = await fetchTextWithRetry(`${appUrl}/forgot-password`);
+
+    assert(loginResult.response.ok, `GET /login devolvio ${loginResult.response.status}.`);
+    assert(registerResult.response.ok, `GET /register devolvio ${registerResult.response.status}.`);
+    assert(forgotPasswordResult.response.ok, `GET /forgot-password devolvio ${forgotPasswordResult.response.status}.`);
+
+    assertIncludes(loginResult.text, "Olvide mi password", "La pantalla de login no mostro acceso a recuperacion de password.");
+    assertIncludes(loginResult.text, "Registrate aqui", "La pantalla de login no mostro acceso a registro.");
+    assertIncludes(registerResult.text, "Inicia sesion aqui", "La pantalla de registro no mostro acceso de regreso a login.");
+    assertIncludes(forgotPasswordResult.text, "Recuperar password", "La pantalla forgot-password no renderizo correctamente.");
+
+    return "Login, register y forgot-password exponen la navegacion publica esperada.";
+  });
+
+  await runCheck("QA-AUTO-49", "Solicitud de recuperacion de password", async () => {
+    const { response, text } = await fetchTextWithRetry(`${appUrl}/api/auth/forgot-password`, {
+      body: JSON.stringify({ email: users.cliente.email }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+    });
+    const json = JSON.parse(text);
+
+    assert(response.ok, `La solicitud de recuperacion devolvio ${response.status}.`);
+    assert(
+      typeof json.message === "string" && json.message.includes("PocketBase procesara la solicitud"),
+      "La solicitud de recuperacion no devolvio el mensaje controlado esperado.",
+    );
+
+    return "La solicitud de recuperacion de password se procesa con respuesta controlada.";
   });
 
   await runCheck("QA-AUTO-25", "Exportacion CSV de tickets para supervisor", async () => {
